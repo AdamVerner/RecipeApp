@@ -18,14 +18,14 @@ jobs:
         with:
           node-version: '16.x'
       - name: Install dependencies
-        run: cd frontend
-      - run: yarn install
+        working-directory: ./frontend
+        run: yarn install
       - run: yarn build
       - run: yarn test
       - name: Deploy frontend to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
           args: deploy --dir=build --prod
-          heroku_api_key: ${{secrets.HEROKU_FRONTEND_API_KEY}}
-          heroku_app_name: ${{secrects.HEROKU_FRONTEND_APP_NAME}}
-          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          heroku_api_key: ${{ secrets.HEROKU_FRONTEND_API_KEY }}
+          heroku_app_name: ${{ secrects.HEROKU_FRONTEND_APP_NAME }}
+          heroku_email: ${{ secrets.HEROKU_EMAIL }}
