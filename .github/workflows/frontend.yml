@@ -3,29 +3,26 @@ name: Frontend CI
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v2
-      - name: Use Node.js
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Use Node.js 17.x
         uses: actions/setup-node@v1
         with:
-          node-version: '16.x'
-      - name: Install dependencies
+          node-version: 17.x
+      - run: yarn install
         working-directory: ./frontend
-        run: yarn install
       - run: yarn build
-      - run: yarn test
-      - name: Deploy frontend to Heroku
+        working-directory: ./frontend
+      - name: Deploy to Heroku
         uses: akhileshns/heroku-deploy@v3.12.12
         with:
-          args: deploy --dir=build --prod
-          heroku_api_key: ${{ secrets.HEROKU_FRONTEND_API_KEY }}
-          heroku_app_name: ${{ secrects.HEROKU_FRONTEND_APP_NAME }}
-          heroku_email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: ${{secrets.HEROKU_FRONTEND_APP_NAME}}
+          heroku_email: ${{secrets.HEROKU_EMAIL}}
+          appdir: frontend

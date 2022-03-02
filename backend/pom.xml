@@ -39,6 +39,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>recipe-app</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
