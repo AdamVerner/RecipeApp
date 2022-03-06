@@ -1,1 +1,1 @@
-insert into user (id, email, password, first_name, last_name) values (next value for user_id_seq, 'test@email.com', 'password', 'Test', 'Test');
+insert into customer (id, email, password, first_name, last_name) values (next value for customer_id_seq, 'test@email.com', 'password', 'Test', 'Test');

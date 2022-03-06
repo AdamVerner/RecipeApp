@@ -11,12 +11,12 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(indexes = { @Index(name = "user_id_uindex", columnList = "id", unique = true), @Index(name = "user_email_uindex", columnList = "email", unique = true) })
+@Table(name = "customer", indexes = { @Index(name = "customer_id_uindex", columnList = "id", unique = true), @Index(name = "customer_email_uindex", columnList = "email", unique = true) })
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seqUser")
-    @SequenceGenerator(name = "seqUser", sequenceName = "user_id_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seqCustomer")
+    @SequenceGenerator(name = "seqCustomer", sequenceName = "customer_id_seq", allocationSize = 1)
     private Integer id;
 
     @NotNull
