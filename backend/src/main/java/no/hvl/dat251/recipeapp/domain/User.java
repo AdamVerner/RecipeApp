@@ -6,12 +6,14 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "customer", indexes = { @Index(name = "customer_id_uindex", columnList = "id", unique = true), @Index(name = "customer_email_uindex", columnList = "email", unique = true) })
+@Table(name = "customer", indexes = @Index(name = "customer_email_uindex", columnList = "email", unique = true))
 public class User {
 
     @Id
@@ -28,5 +30,14 @@ public class User {
     private String firstName;
 
     private String lastName;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Recipe> recipes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Rating> ratings = new ArrayList<>();
 
 }

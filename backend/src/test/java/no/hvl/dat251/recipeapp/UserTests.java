@@ -45,7 +45,11 @@ class UserTests {
 
 	@Test
 	void userCreationTest() throws Exception {
-		User user = new User(null, "email@email.com", "password", "First", "Last");
+		User user = new User();
+		user.setEmail("email@email.com");
+		user.setPassword("password");
+		user.setFirstName("First");
+		user.setLastName("Last");
 
 		mockMvc.perform(MockMvcRequestBuilders
 				.post("/user")
