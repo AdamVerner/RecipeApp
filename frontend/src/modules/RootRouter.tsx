@@ -1,12 +1,16 @@
 import {Routes, Route} from "react-router-dom"
 import {UserAuthenticate} from "./users/components/UserAuthenticate"
-import {AuthRouter} from "./AuthRouter"
+import {AppAuthRoutes, AuthRouter} from "./AuthRouter"
 
-export const USER_AUTHENTICATE_ROUTE = "/auth"
+
+export const AppRoutes = {
+	...AppAuthRoutes,
+	UserAuthenticateRoute: "/auth"
+}
 
 export const RootRouter = () => (
 	<Routes>
-		<Route path={USER_AUTHENTICATE_ROUTE} element={<UserAuthenticate/>}/>
+		<Route path={AppRoutes.UserAuthenticateRoute} element={<UserAuthenticate/>}/>
 		<Route path="/*" element={<AuthRouter/>}/>
 	</Routes>
 )

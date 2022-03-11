@@ -2,7 +2,7 @@ import {useForm} from "react-hook-form"
 import {Button, Stack, TextField, Typography} from "@mui/material"
 import {useUserStore} from "../user-store"
 import {useNavigate} from "react-router-dom"
-import {USER_HOME_ROUTE} from "../../AuthRouter"
+import {AppRoutes} from "../../RootRouter"
 import {useSnackbar} from "notistack"
 import {yupResolver} from "@hookform/resolvers/yup"
 import * as yup from "yup"
@@ -35,7 +35,7 @@ export const UserLoginForm = () => {
 	const onSubmit = (data: UserLoginFormData) => {
 		authenticate(data)
 			.then(() => {
-				navigate(USER_HOME_ROUTE)
+				navigate(AppRoutes.UserHomeRoute)
 			})
 			.catch(() => {
 				enqueueSnackbar("Login failed", {variant: "error"})
