@@ -2,7 +2,9 @@ name: Frontend CI
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, devel ]
+  pull_request:
+    branches: [ master, devel ]
 
 
 jobs:
@@ -18,6 +20,8 @@ jobs:
       - run: yarn install
         working-directory: ./frontend
       - run: yarn build
+        working-directory: ./frontend
+      - run: yarn lint
         working-directory: ./frontend
       - run: yarn test
         working-directory: ./frontend
