@@ -33,7 +33,7 @@ class UserTests {
 	void getUserTest() throws Exception {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
 				.get("/user")
-				.header("Authorization", testService.generateToken()))
+				.header(TestService.AUTHORIZATION_HEADER, testService.generateToken()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andReturn();
 		User user = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), User.class);
@@ -53,14 +53,14 @@ class UserTests {
 
 		mockMvc.perform(MockMvcRequestBuilders
 				.post("/user")
-				.header("Authorization", testService.generateToken())
+				.header(TestService.AUTHORIZATION_HEADER, testService.generateToken())
 				.contentType(MediaType.APPLICATION_JSON_VALUE)
 				.content(objectMapper.writeValueAsString(user)))
 				.andExpect(MockMvcResultMatchers.status().isCreated());
 
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
 				.get("/user")
-				.header("Authorization", testService.generateToken("email@email.com")))
+				.header(TestService.AUTHORIZATION_HEADER, testService.generateToken("email@email.com")))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andReturn();
 

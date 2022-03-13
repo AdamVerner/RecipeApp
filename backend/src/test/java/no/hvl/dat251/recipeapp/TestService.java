@@ -11,6 +11,8 @@ import java.util.Date;
 @Service
 public class TestService {
 
+    public static final String AUTHORIZATION_HEADER = "Authorization";
+
     @Value("${token.expiration.minutes}")
     private int tokenExpirationMinutes;
 

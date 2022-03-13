@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -16,20 +17,28 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 public class AuthorizationFilter extends OncePerRequestFilter {
 
     private final Algorithm algorithm;
+    private final Map<HttpMethod, Set<String>> excludedEndpoints;
 
-    public AuthorizationFilter(Algorithm algorithm) {
+    public AuthorizationFilter(Algorithm algorithm, Map<HttpMethod, Set<String>> excludedEndpoints) {
         this.algorithm = algorithm;
+        this.excludedEndpoints = excludedEndpoints;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        if(HttpMethod.POST.name().equalsIgnoreCase(request.getMethod()) && Arrays.asList("/login", "/user").contains(request.getServletPath())) {
+        AntPathMatcher matcher = new AntPathMatcher();
+        boolean excludedEndpoint = excludedEndpoints.keySet().stream()
+                .filter(httpMethod -> httpMethod.name().equalsIgnoreCase(request.getMethod()))
+                .flatMap(httpMethod -> excludedEndpoints.get(httpMethod).stream())
+                .anyMatch(pattern -> matcher.match(pattern, request.getServletPath()));
+        if(excludedEndpoint) {
             filterChain.doFilter(request, response);
             return;
         }
