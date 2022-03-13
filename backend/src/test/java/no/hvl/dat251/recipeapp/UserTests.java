@@ -14,6 +14,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -38,18 +41,17 @@ class UserTests {
 				.andReturn();
 		User user = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), User.class);
 		Assertions.assertEquals("test@email.com", user.getEmail());
-		Assertions.assertEquals("password", user.getPassword());
 		Assertions.assertEquals("Test", user.getFirstName());
 		Assertions.assertEquals("Test", user.getLastName());
 	}
 
 	@Test
 	void userCreationTest() throws Exception {
-		User user = new User();
-		user.setEmail("email@email.com");
-		user.setPassword("password");
-		user.setFirstName("First");
-		user.setLastName("Last");
+		Map<String, String> user = new HashMap<>();
+		user.put("email", "email@email.com");
+		user.put("password", "password");
+		user.put("firstName", "First");
+		user.put("lastName", "Last");
 
 		mockMvc.perform(MockMvcRequestBuilders
 				.post("/user")
