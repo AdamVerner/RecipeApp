@@ -23,6 +23,11 @@
         "@typescript-eslint",
         "jest"
     ],
+    "settings": {
+        "react" : {
+            "version": "detect"
+        }
+    },
     "rules": {
         "indent": [
             "warn",
