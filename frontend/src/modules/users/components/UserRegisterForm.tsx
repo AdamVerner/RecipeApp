@@ -1,9 +1,10 @@
 import {useForm} from "react-hook-form"
-import {Button, Grid, Stack, TextField, Typography} from "@mui/material"
+import {Button, CircularProgress, Grid, Stack, TextField, Typography} from "@mui/material"
 import {registerUser} from "../user-api"
 import {useSnackbar} from "notistack"
 import * as yup from "yup"
 import {yupResolver} from "@hookform/resolvers/yup"
+import {useState} from "react"
 
 interface UserRegisterFormData {
 	email: string
@@ -13,6 +14,8 @@ interface UserRegisterFormData {
 }
 
 export const UserRegisterForm = () => {
+	const [isBusy, setIsBusy] = useState(false)
+
 	const validationSchema = yup.object().shape({
 		email: yup.string()
 			.required("Email is required")
@@ -35,6 +38,8 @@ export const UserRegisterForm = () => {
 	const {enqueueSnackbar} = useSnackbar()
 
 	const onSubmit = (data: UserRegisterFormData) => {
+		setIsBusy(true)
+
 		registerUser(data)
 			.then(_ => {
 				enqueueSnackbar("Registration successful", {variant: "success"})
@@ -43,6 +48,7 @@ export const UserRegisterForm = () => {
 			.catch(_ => {
 				enqueueSnackbar("Registration failed", {variant: "error"})
 			})
+			.finally(() => setIsBusy(false))
 	}
 
 	return (
@@ -68,7 +74,9 @@ export const UserRegisterForm = () => {
 						   helperText={errors.lastName?.message}
 						   {...register("lastName")}
 						   label="Lastname"/>
-				<Button type="submit" variant="contained">Register</Button>
+				<Button type="submit" variant="contained" disabled={isBusy}>
+					{isBusy ? <CircularProgress size={25}/> : <>Register</>}
+				</Button>
 			</Stack>
 		</form>
 	)
