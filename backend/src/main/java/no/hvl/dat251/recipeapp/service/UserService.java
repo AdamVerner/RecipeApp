@@ -19,7 +19,7 @@ import java.util.Optional;
 public class UserService implements UserDetailsService {
 
     @Autowired
-    private UserRepository repository;
+    private UserRepository userRepository;
 
     @Autowired
     private SecurityService securityService;
@@ -33,12 +33,12 @@ public class UserService implements UserDetailsService {
     }
 
     private User getUserByEmail(String email) {
-        return repository.getByEmail(email);
+        return userRepository.getByEmail(email);
     }
 
     public User saveUser(User user) {
         user.setPassword(securityService.getPasswordEncoder().encode(user.getPassword()));
-        return repository.save(user);
+        return userRepository.save(user);
     }
 
     public User getCurrentUser() {

@@ -3,6 +3,8 @@ package no.hvl.dat251.recipeapp.security;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.slf4j.Slf4j;
+import no.hvl.dat251.recipeapp.controller.ErrorController;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -21,6 +23,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
+@Slf4j
 public class AuthorizationFilter extends OncePerRequestFilter {
 
     private final Algorithm algorithm;
@@ -48,10 +51,11 @@ public class AuthorizationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(username, null, Collections.emptyList());
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             filterChain.doFilter(request, response);
-        } catch(Exception e) {
+        } catch(ServletException | IOException e) {
+            log.error("Wrong authorization token", e);
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            new ObjectMapper().writeValue(response.getOutputStream(), Collections.singletonMap("error_message", "Wrong authorization token: " + e.getMessage()));
+            new ObjectMapper().writeValue(response.getOutputStream(), new ErrorController.ErrorResponse("Wrong authorization token: " + e.getMessage()));
         }
     }
 
