@@ -21,4 +21,8 @@ public class GroceryService {
         return repository.findAll();
     }
 
+    public List<Grocery> searchGroceries(String search) {
+        return repository.findByNameContainingIgnoreCase(search);
+    }
+
 }

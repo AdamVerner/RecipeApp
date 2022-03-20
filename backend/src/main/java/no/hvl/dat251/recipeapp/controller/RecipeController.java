@@ -1,6 +1,5 @@
 package no.hvl.dat251.recipeapp.controller;
 
-import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -11,16 +10,17 @@ import no.hvl.dat251.recipeapp.domain.Recipe;
 import no.hvl.dat251.recipeapp.domain.User;
 import no.hvl.dat251.recipeapp.service.RecipeService;
 import no.hvl.dat251.recipeapp.service.UserService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.List;
 
 @RestController
-@Hidden
 public class RecipeController {
 
     @Autowired
@@ -35,8 +35,12 @@ public class RecipeController {
             @ApiResponse(responseCode = "403", description = "Forbidden for requests without authorization token",
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
-    public ResponseEntity<List<Recipe>> getAllRecipes() {
-        return ResponseEntity.ok(recipeService.getAllRecipes());
+    public ResponseEntity<List<Recipe>> getAllRecipes(@RequestParam(required = false) String search) {
+        if(StringUtils.isBlank(search)) {
+            return ResponseEntity.ok(recipeService.getAllRecipes());
+        } else {
+            return ResponseEntity.ok(recipeService.searchRecipes(search));
+        }
     }
 
     @GetMapping("/recipes")
@@ -45,9 +49,13 @@ public class RecipeController {
             @ApiResponse(responseCode = "403", description = "Forbidden for requests without authorization token",
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
-    public ResponseEntity<List<Recipe>> getRecipesForCurrentUser() {
+    public ResponseEntity<List<Recipe>> getRecipesForCurrentUser(@RequestParam(required = false) String search) {
         User user = userService.getCurrentUser();
-        return ResponseEntity.ok(user.getRecipes());
+        if(StringUtils.isBlank(search)) {
+            return ResponseEntity.ok(user.getRecipes());
+        } else {
+            return ResponseEntity.ok(recipeService.searchRecipes(search, user));
+        }
     }
 
     @GetMapping("/recipe/{id}")
@@ -69,6 +77,7 @@ public class RecipeController {
     public ResponseEntity<Recipe> saveRecipe(@RequestBody Recipe recipe) {
         User user = userService.getCurrentUser();
         recipe.setUser(user);
+        recipe.setCreated(Instant.now());
         recipe.getItems().forEach(item -> item.setRecipe(recipe));
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString()))
                 .body(recipeService.saveRecipe(recipe));
@@ -83,6 +92,7 @@ public class RecipeController {
     public ResponseEntity<Comment> saveComment(@RequestBody Comment comment) {
         User user = userService.getCurrentUser();
         comment.setUser(user);
+        comment.setCreated(Instant.now());
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString()))
                 .body(recipeService.saveComment(comment));
     }

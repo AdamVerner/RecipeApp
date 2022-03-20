@@ -27,7 +27,7 @@ public class Recipe implements ObjectWithId {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "customer", nullable = false, foreignKey = @ForeignKey(name = "recipe_customer_id_fk"))
+    @JoinColumn(name = "customer_id", nullable = false, foreignKey = @ForeignKey(name = "recipe_customer_id_fk"))
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private User user;
 

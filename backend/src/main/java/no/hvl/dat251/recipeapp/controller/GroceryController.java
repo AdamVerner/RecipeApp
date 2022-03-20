@@ -8,12 +8,10 @@ import no.hvl.dat251.recipeapp.domain.Grocery;
 import no.hvl.dat251.recipeapp.enums.GROCERY_CATEGORY;
 import no.hvl.dat251.recipeapp.enums.QUANTITY_UNIT;
 import no.hvl.dat251.recipeapp.service.GroceryService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
@@ -32,8 +30,12 @@ public class GroceryController {
             @ApiResponse(responseCode = "403", description = "Forbidden for requests without authorization token",
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
-    public ResponseEntity<List<Grocery>> getGroceries() {
-        return ResponseEntity.ok(groceryService.getGroceries());
+    public ResponseEntity<List<Grocery>> getGroceries(@RequestParam(required = false) String search) {
+        if(StringUtils.isBlank(search)) {
+            return ResponseEntity.ok(groceryService.getGroceries());
+        } else {
+            return ResponseEntity.ok(groceryService.searchGroceries(search));
+        }
     }
 
     @GetMapping("/grocery-categories")

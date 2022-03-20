@@ -33,7 +33,7 @@ public class Comment implements ObjectWithId {
 
     @NotNull
     @ManyToOne(optional = false)
-    @JoinColumn(name = "customer", nullable = false, foreignKey = @ForeignKey(name = "comment_customer_id_fk"))
+    @JoinColumn(name = "customer_id", nullable = false, foreignKey = @ForeignKey(name = "comment_customer_id_fk"))
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private User user;
 
