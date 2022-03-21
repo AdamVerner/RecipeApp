@@ -3,6 +3,7 @@ package no.hvl.dat251.recipeapp.service;
 import no.hvl.dat251.recipeapp.domain.Comment;
 import no.hvl.dat251.recipeapp.domain.Rating;
 import no.hvl.dat251.recipeapp.domain.Recipe;
+import no.hvl.dat251.recipeapp.domain.User;
 import no.hvl.dat251.recipeapp.repository.CommentRepository;
 import no.hvl.dat251.recipeapp.repository.RatingRepository;
 import no.hvl.dat251.recipeapp.repository.RecipeRepository;
@@ -28,11 +29,19 @@ public class RecipeService {
     }
 
     public Recipe getRecipe(Integer id) {
-        return recipeRepository.getById(id);
+        return recipeRepository.findById(id).orElse(null);
     }
 
     public List<Recipe> getAllRecipes() {
         return recipeRepository.findAll();
+    }
+
+    public List<Recipe> searchRecipes(String search) {
+        return recipeRepository.findByNameContainingIgnoreCase(search);
+    }
+
+    public List<Recipe> searchRecipes(String search, User user) {
+        return recipeRepository.findByNameContainingIgnoreCaseAndUserEquals(search, user);
     }
 
     public Comment saveComment(Comment comment) {

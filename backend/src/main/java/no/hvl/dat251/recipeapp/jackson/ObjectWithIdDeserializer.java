@@ -9,53 +9,54 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.deser.ContextualDeserializer;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import lombok.extern.slf4j.Slf4j;
+import no.hvl.dat251.recipeapp.common.ApplicationContextProvider;
 import no.hvl.dat251.recipeapp.domain.ObjectWithId;
-import org.hibernate.SessionFactory;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 
-public class ObjectWithIdDeserializer<OBJECT extends ObjectWithId> extends StdDeserializer<OBJECT> implements ContextualDeserializer, ApplicationContextAware {
+@Slf4j
+public class ObjectWithIdDeserializer<T extends ObjectWithId> extends StdDeserializer<T> implements ContextualDeserializer {
 
-    private ApplicationContext applicationContext;
-    private final Class<OBJECT> clazz;
+    private final Class<T> clazz;
 
     public ObjectWithIdDeserializer() {
         this(null);
     }
 
-    public ObjectWithIdDeserializer(Class<OBJECT> clazz) {
+    public ObjectWithIdDeserializer(Class<T> clazz) {
         super(clazz);
         this.clazz = clazz;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
     }
 
     @Override
     public JsonDeserializer<?> createContextual(DeserializationContext deserializationContext, BeanProperty beanProperty) {
         final JavaType type = beanProperty == null ? deserializationContext.getContextualType() : beanProperty.getType();
         Class<?> c = type.isContainerType() ? type.getContentType().getRawClass() : type.getRawClass();
-        return new ObjectWithIdDeserializer<>((Class<OBJECT>) c);
+        return new ObjectWithIdDeserializer<>((Class<T>) c);
     }
 
     @Override
-    public OBJECT deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+    public T deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
         if(jsonParser.getCurrentToken() == JsonToken.VALUE_NULL) {
             return null;
         } else {
             Integer id = jsonParser.readValueAs(Integer.class);
-            return applicationContext.getBean(SessionFactory.class).getCurrentSession().get(clazz, id);
+
+            log.debug("Deserializing " + clazz.getSimpleName() + " with ID " + id);
+            return getObjectWithId(id);
         }
     }
 
     @Override
     public Object deserializeWithType(JsonParser jsonParser, DeserializationContext deserializationContext, TypeDeserializer typeDeserializer) throws IOException {
         return deserialize(jsonParser, deserializationContext);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public T getObjectWithId(Integer id) {
+        return ApplicationContextProvider.getSessionFactory().openSession().get(clazz, id);
     }
 
 }
