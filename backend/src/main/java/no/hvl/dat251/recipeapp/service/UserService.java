@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.Optional;
@@ -24,6 +25,7 @@ public class UserService implements UserDetailsService {
     @Autowired
     private SecurityService securityService;
 
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         log.debug("Load user by username: " + username);
@@ -32,10 +34,12 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
-    private User getUserByEmail(String email) {
+    @Transactional(rollbackFor = Exception.class)
+    public User getUserByEmail(String email) {
         return userRepository.getByEmail(email);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public User saveUser(User user) {
         user.setPassword(securityService.getPasswordEncoder().encode(user.getPassword()));
         return userRepository.save(user);

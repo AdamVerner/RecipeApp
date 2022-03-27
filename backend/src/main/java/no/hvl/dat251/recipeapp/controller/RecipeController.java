@@ -43,6 +43,17 @@ public class RecipeController {
         }
     }
 
+    @GetMapping("/recipes-suggested")
+    @Operation(summary = "List suggested recipes", responses = {
+            @ApiResponse(responseCode = "200", description = "Successful operation"),
+            @ApiResponse(responseCode = "403", description = "Forbidden for requests without authorization token",
+                    content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
+    })
+    public ResponseEntity<List<Recipe>> getSuggestedRecipes() {
+        User user = userService.getCurrentUser();
+        return ResponseEntity.ok(recipeService.getSuggestedRecipes(user));
+    }
+
     @GetMapping("/recipes")
     @Operation(summary = "List recipes created by current user", responses = {
             @ApiResponse(responseCode = "200", description = "Successful operation"),

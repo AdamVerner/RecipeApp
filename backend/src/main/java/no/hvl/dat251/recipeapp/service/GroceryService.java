@@ -4,10 +4,12 @@ import no.hvl.dat251.recipeapp.domain.Grocery;
 import no.hvl.dat251.recipeapp.repository.GroceryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class GroceryService {
 
     @Autowired
