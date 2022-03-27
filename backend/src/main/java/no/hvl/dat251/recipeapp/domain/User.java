@@ -47,4 +47,8 @@ public class User implements ObjectWithId {
     @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Rating> ratings = new ArrayList<>();
 
+    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    private List<Pantry> pantry = new ArrayList<>();
+
 }
