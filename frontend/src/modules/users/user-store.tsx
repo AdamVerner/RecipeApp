@@ -1,39 +1,62 @@
-import {User} from "./user-models"
+import { User } from "./user-models"
 
 import create from "zustand"
-import {authenticateUser, getUserDetail, UserLoginRequest} from "./user-api"
-import {persist} from "zustand/middleware"
+import { authenticateUser, getUserDetail, UserLoginRequest } from "./user-api"
+import { persist } from "zustand/middleware"
 import createContext from "zustand/context"
-import {FC} from "react"
+import { FC } from "react"
+import axios from "axios"
 
 export interface UserStore {
 	authToken?: string
 	user?: User
 	isAuthenticated: boolean
 
-	authenticate(body: UserLoginRequest): Promise<void>
+	login(body: UserLoginRequest): Promise<void>
+	authenticate(): Promise<void>
 
 	logout(): void
 }
 
 const createUserStore = () => create<UserStore>(persist(
-	(set, _) => ({
+	(set, get) => ({
 		authToken: undefined,
 		user: undefined,
 		isAuthenticated: false,
 
 		logout: () => {
-			set({authToken: undefined, user: undefined, isAuthenticated: false})
+			axios.defaults.headers.common["Authorization"] = ""
+			set({ authToken: undefined, user: undefined, isAuthenticated: false })
 		},
 
-		authenticate: async (body) => {
-			const {token} = await authenticateUser(body)
-			const user = await getUserDetail(token)
-			set({authToken: token, user, isAuthenticated: true})
+		login: async (body) => {
+			const { token } = await authenticateUser(body)
+			set({ authToken: token })
+			await get().authenticate()
+		},
+
+		authenticate: async() => {
+			const token = get().authToken
+
+			if (!token) {
+				throw new Error("Auth token is not defined")
+			}
+
+			axios.defaults.headers.common["Authorization"] = token
+
+			try {
+				const user = await getUserDetail()
+				set({ user, isAuthenticated: true })
+			}
+			catch (e) {
+				get().logout()
+			}
+
 		}
 	}),
 	{
-		name: "user-storage"
+		name: "user-storage",
+		partialize: state => ({ authToken: state.authToken })
 	}
 ))
 

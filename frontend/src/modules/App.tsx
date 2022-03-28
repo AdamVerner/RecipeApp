@@ -1,12 +1,14 @@
-import {SnackbarProvider} from "notistack"
-import {RootRouter} from "./RootRouter"
-import {BrowserRouter} from "react-router-dom"
-import {RecipeAppBar} from "./RecipeAppBar"
-import {Stack, ThemeProvider} from "@mui/material"
-import {UserStoreProvider} from "./users/user-store"
-import {materialTheme} from "./styles/material-theme"
-import {Global} from "@emotion/react"
-import {globalStyle} from "./styles/global-style"
+import { SnackbarProvider } from "notistack"
+import { RootRouter } from "./RootRouter"
+import { BrowserRouter } from "react-router-dom"
+import { RecipeAppBar } from "./RecipeAppBar"
+import { Stack, ThemeProvider } from "@mui/material"
+import { UserStoreProvider } from "./users/user-store"
+import { materialTheme } from "./styles/material-theme"
+import { Global } from "@emotion/react"
+import { globalStyle } from "./styles/global-style"
+import { RecipeStoreProvider } from "./recipes/recipe-store"
+import ModalProvider from "mui-modal-provider"
 
 export const App = () => {
 
@@ -25,9 +27,14 @@ export const App = () => {
 			<BrowserRouter>
 				<SnackbarProvider maxSnack={3}>
 					<UserStoreProvider>
-						{appContent}
+						<RecipeStoreProvider>
+							<ModalProvider>
+								{appContent}
+							</ModalProvider>
+						</RecipeStoreProvider>
 					</UserStoreProvider>
 				</SnackbarProvider>
 			</BrowserRouter>
-		</ThemeProvider>)
+		</ThemeProvider>
+	)
 }

@@ -1,12 +1,12 @@
-import {useForm} from "react-hook-form"
-import {Button, CircularProgress, Stack, TextField, Typography} from "@mui/material"
-import {useUserStore} from "../user-store"
-import {useNavigate} from "react-router-dom"
-import {AppRoutes} from "../../RootRouter"
-import {useSnackbar} from "notistack"
-import {yupResolver} from "@hookform/resolvers/yup"
+import { useForm } from "react-hook-form"
+import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material"
+import { useUserStore } from "../user-store"
+import { useNavigate } from "react-router-dom"
+import { AppRoutes } from "../../RootRouter"
+import { useSnackbar } from "notistack"
+import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import {useState} from "react"
+import { useState } from "react"
 
 interface UserLoginFormData {
 	email: string
@@ -27,24 +27,20 @@ export const UserLoginForm = () => {
 	const {
 		register,
 		handleSubmit,
-		formState: {errors}
-	} = useForm<UserLoginFormData>({resolver: yupResolver(validationSchema)})
+		formState: { errors }
+	} = useForm<UserLoginFormData>({ resolver: yupResolver(validationSchema) })
 
-	const {enqueueSnackbar} = useSnackbar()
+	const { enqueueSnackbar } = useSnackbar()
 
-	const {authenticate} = useUserStore()
+	const { login } = useUserStore()
 	const navigate = useNavigate()
 
 	const onSubmit = (data: UserLoginFormData) => {
 		setIsBusy(true)
 
-		authenticate(data)
-			.then(() => {
-				navigate(AppRoutes.UserHomeRoute)
-			})
-			.catch(() => {
-				enqueueSnackbar("Login failed", {variant: "error"})
-			})
+		login(data)
+			.then(() => navigate(AppRoutes.UserRecipesRoute))
+			.catch(() => enqueueSnackbar("Login failed", { variant: "error" }))
 			.finally(() => setIsBusy(false))
 	}
 
@@ -57,15 +53,17 @@ export const UserLoginForm = () => {
 						error={!!errors.email}
 						helperText={errors.email?.message}
 						{...register("email")}
-						label="Email"/>
+						label="Email"
+					/>
 					<TextField
 						error={!!errors.password}
 						helperText={errors.password?.message}
 						type="password"
 						{...register("password")}
-						label="Password"/>
+						label="Password"
+					/>
 					<Button type="submit" disabled={isBusy} variant="contained">
-						{isBusy ? <CircularProgress size={25}/> : <>Login</>}
+						{isBusy ? <CircularProgress size={25}/> : <span>Login</span>}
 					</Button>
 				</Stack>
 			</form>
