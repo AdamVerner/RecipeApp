@@ -7,8 +7,10 @@ import { UserStoreProvider } from "./users/user-store"
 import { materialTheme } from "./styles/material-theme"
 import { Global } from "@emotion/react"
 import { globalStyle } from "./styles/global-style"
-import { RecipeStoreProvider } from "./recipes/recipe-store"
 import ModalProvider from "mui-modal-provider"
+import { QueryClient, QueryClientProvider } from "react-query"
+
+const queryClient = new QueryClient()
 
 export const App = () => {
 
@@ -27,11 +29,11 @@ export const App = () => {
 			<BrowserRouter>
 				<SnackbarProvider maxSnack={3}>
 					<UserStoreProvider>
-						<RecipeStoreProvider>
+						<QueryClientProvider client={queryClient} >
 							<ModalProvider>
 								{appContent}
 							</ModalProvider>
-						</RecipeStoreProvider>
+						</QueryClientProvider>
 					</UserStoreProvider>
 				</SnackbarProvider>
 			</BrowserRouter>

@@ -14,8 +14,8 @@ import {
 import RestaurantIcon from "@mui/icons-material/Restaurant"
 import KitchenIcon from "@mui/icons-material/Kitchen"
 import { useMemo } from "react"
-import { useRecipeStore } from "../recipe-store"
 import styled from "@emotion/styled"
+import { useGroceries, useRecipe } from "../recipe-queries"
 
 interface RecipeItemDetail {
 	id: number
@@ -29,26 +29,28 @@ export const RecipeDetail = () => {
 	const { id } = useParams()
 	const navigate = useNavigate()
 
-	const recipeStore = useRecipeStore()
-	const recipe = useMemo(() => {
-		return recipeStore.allRecipes.find(recipe => recipe.id === Number(id))
-	}, [id, recipeStore])
+	const { data: groceries } = useGroceries()
+	const { data: recipe } = useRecipe(Number(id))
 
-	const groceries = useMemo(() => {
-		return recipe?.items.map(item => {
-			const grocery = recipeStore.groceries.find(grocery => grocery.id === item.grocery)!
+	const recipeItems = useMemo(() => {
+		if (!recipe) {
+			return [] as RecipeItemDetail[]
+		}
+
+		return recipe.items.map(item => {
+			const grocery = groceries?.find(grocery => grocery.id === item.grocery)
 
 			const result: RecipeItemDetail = {
 				id: item.grocery,
 				quantity: item.quantity,
 				unit: item.unit,
-				name: grocery.name,
-				category: grocery.category
+				name: grocery?.name ?? "unknown",
+				category: grocery?.category ?? "unknown"
 			}
 
 			return result
-		}).filter(grocery => grocery !== undefined)
-	}, [recipe, recipeStore])
+		})
+	}, [recipe, groceries])
 
 
 	return (
@@ -64,9 +66,9 @@ export const RecipeDetail = () => {
 							dense
 							subheader={<ListSubheader><KitchenIcon/> Ingredients</ListSubheader>}
 						>
-							{groceries?.map((grocery, i) => (
+							{recipeItems.map((item, i) => (
 								<ListItem key={i}>
-									<ListItemText primary={`${grocery?.name}: ${grocery?.quantity} ${grocery?.unit}`}/>
+									<ListItemText primary={`${item.name}: ${item.quantity} ${item.unit}`}/>
 								</ListItem>
 							))}
 						</List>

@@ -3,6 +3,7 @@ import axios from "axios"
 import { Grocery, GroceryCategory, Recipe } from "./recipe-models"
 
 const GET_ALL_RECIPES_URL = `${AppConfig.apiUrl}/recipes-all`
+const GET_RECIPE_URL = `${AppConfig.apiUrl}/recipe`
 const GET_USER_RECIPES_URL = `${AppConfig.apiUrl}/recipes`
 const SAVE_RECIPE_URL = `${AppConfig.apiUrl}/recipe`
 
@@ -28,9 +29,6 @@ export interface SaveGroceryRequest {
 	category: string
 }
 
-// todo: add middleware for token checking
-// todo: add middleware for logout when 403 is received
-
 export const getQuantityUnits = () =>
 	axios.get<string[]>(GET_QUANTITY_UNITS_URL)
 		.then(res => res.data)
@@ -43,18 +41,16 @@ export const getGroceries = () =>
 	axios.get<Grocery[]>(GET_GROCERIES_URL)
 		.then(res => res.data)
 
-export const getAllRecipes = (search?: string) =>
-	axios.get<Recipe[]>(GET_ALL_RECIPES_URL,
-		{
-			params: { "search": search }
-		})
+export const getAllRecipes = () =>
+	axios.get<Recipe[]>(GET_ALL_RECIPES_URL)
 		 .then(res => res.data)
 
-export const getUserRecipes = (search?: string) =>
-	axios.get<Recipe[]>(GET_USER_RECIPES_URL,
-		{
-			params: { "search": search }
-		})
+export const getRecipe = (id: number) =>
+	axios.get<Recipe>(`${GET_RECIPE_URL}/${id}`)
+		.then(res => res.data)
+
+export const getUserRecipes = () =>
+	axios.get<Recipe[]>(GET_USER_RECIPES_URL)
 		.then(res => res.data)
 
 export const saveGrocery = (body: SaveGroceryRequest) =>

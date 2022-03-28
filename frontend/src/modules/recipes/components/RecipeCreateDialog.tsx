@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect } from "react"
 import * as yup from "yup"
 import { useFieldArray, useForm, Controller } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -18,9 +18,15 @@ import {
 	IconButton,
 	ListItemText
 } from "@mui/material"
-import { useRecipeStore } from "../recipe-store"
 import { useSnackbar } from "notistack"
 import { Close, Delete } from "@mui/icons-material"
+import {
+	useGroceries,
+	useGrocery,
+	useGroceryCategories,
+	useQuantityUnits,
+	useSaveRecipeForm
+} from "../recipe-queries"
 
 export interface RecipeFormData {
 	name: string
@@ -36,10 +42,6 @@ interface RecipeItemFormData {
 	value: number
 	grocery: string
 	category: string
-}
-
-export interface RecipeCreateDialogProps extends DialogProps {
-	handleClose(): void
 }
 
 const RecipeItemSchema = yup.object().shape({
@@ -63,12 +65,14 @@ const RecipeSchema = yup.object().shape({
 		.integer("Portions can't be fractional")
 		.typeError("You must enter a number"),
 	items: yup.array().of(RecipeItemSchema).optional(),
-	newItem: RecipeItemSchema.optional()
+	// newItem: RecipeItemSchema.optional()
 })
 
+export interface RecipeCreateDialogProps extends DialogProps {
+	handleClose(): void
+}
+
 export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialogProps) => {
-	const [isBusy, setIsBusy] = useState(false)
-	const recipeStore = useRecipeStore()
 	const { enqueueSnackbar } = useSnackbar()
 
 	const {
@@ -88,27 +92,27 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 		name: "items"
 	})
 
-	const onSubmit = (data: RecipeFormData) => {
-		setIsBusy(true)
+	const { data: quantityUnits } = useQuantityUnits()
+	const { data: groceryCategories } = useGroceryCategories()
+	const { data: groceries } = useGroceries()
 
-		recipeStore.createRecipe(data)
+	const saveRecipeForm = useSaveRecipeForm()
+
+	const onSubmit = (data: RecipeFormData) => {
+		saveRecipeForm.mutateAsync(data)
 			.then(() => {
 				enqueueSnackbar("Recipe created", { variant: "success" })
 				handleClose()
 			})
-			.catch(console.error)
-			.finally(() => setIsBusy(false))
+			.catch((e) => {
+				enqueueSnackbar("Failed to create recipe", { variant: "error" })
+				console.error(e)
+			})
 	}
 
 	const groceryWatch = watch("newItem.grocery")
 
-	const selectedGrocery = useMemo(() => {
-		if (!groceryWatch) {
-			return undefined
-		}
-
-		return recipeStore.findGrocery(groceryWatch)
-	}, [groceryWatch, recipeStore])
+	const { data: selectedGrocery } = useGrocery(groceryWatch ?? "")
 
 	useEffect(() => {
 		if (selectedGrocery) {
@@ -174,7 +178,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 								/>
 								<Button
 									type="submit"
-									disabled={isBusy}
+									disabled={saveRecipeForm.isLoading}
 									variant="contained"
 								>
 									Create
@@ -208,36 +212,10 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 							<Stack spacing={3}>
 								<Controller
 									control={control}
-									name="newItem.quantityUnit"
-									render={({ field: { onChange, value, ...props } }) => (
-										<Autocomplete
-											options={recipeStore.quantityUnits}
-											renderInput={(params) => <TextField
-												{...params}
-												label="Quantity unit"
-												error={!!errors.newItem?.quantityUnit}
-												helperText={errors.newItem?.quantityUnit?.message}
-											/>}
-											value={value ?? ""}
-											onChange={(_, value) => onChange(value)}
-											{...props}
-										/>
-									)}
-								/>
-
-								<TextField
-									type="number"
-									label="Value"
-									{...register("newItem.value")}
-									error={!!errors.newItem?.value}
-									helperText={errors.newItem?.value?.message}
-								/>
-								<Controller
-									control={control}
 									name="newItem.grocery"
 									render={({ field: { onChange, value, ...props } }) => (
 										<Autocomplete
-											options={recipeStore.groceries.map(grocery => grocery.name)}
+											options={groceries?.map(grocery => grocery.name) ?? []}
 											// getOptionLabel={option => (option as Grocery).name}
 											freeSolo
 											autoSelect
@@ -259,7 +237,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 									name="newItem.category"
 									render={({ field: { onChange, value, ...props } }) => (
 										<Autocomplete
-											options={recipeStore.groceryCategories}
+											options={groceryCategories ?? []}
 											disabled={selectedGrocery !== undefined}
 											renderInput={(params) => <TextField
 												{...params}
@@ -273,7 +251,34 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 										/>
 									)}
 								/>
-								<Button onClick={handleAddItem}>
+
+								<Controller
+									control={control}
+									name="newItem.quantityUnit"
+									render={({ field: { onChange, value, ...props } }) => (
+										<Autocomplete
+											options={quantityUnits ?? []}
+											renderInput={(params) => <TextField
+												{...params}
+												label="Unit"
+												error={!!errors.newItem?.quantityUnit}
+												helperText={errors.newItem?.quantityUnit?.message}
+											/>}
+											value={value ?? ""}
+											onChange={(_, value) => onChange(value)}
+											{...props}
+										/>
+									)}
+								/>
+
+								<TextField
+									type="number"
+									label="Quantity"
+									{...register("newItem.value")}
+									error={!!errors.newItem?.value}
+									helperText={errors.newItem?.value?.message}
+								/>
+								<Button onClick={handleAddItem} disabled={saveRecipeForm.isLoading}>
 									Add item
 								</Button>
 							</Stack>
