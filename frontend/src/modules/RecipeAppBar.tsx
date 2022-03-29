@@ -10,15 +10,17 @@ import {
 	Typography,
 	Box
 } from "@mui/material"
-import { useUserStore } from "./users/user-store"
 import { Menu } from "@mui/icons-material"
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { AppRoutes } from "./RootRouter"
+import { useUserLogout } from "./users/user-queries"
+import { useAuthStore } from "./users/auth-store"
 
 
 export const RecipeAppBar = () => {
-	const { logout, isAuthenticated } = useUserStore()
+	const { isAuthenticated } = useAuthStore()
+	const { logout } = useUserLogout()
 	const [showMenu, setShowMenu] = useState(false)
 	const navigate = useNavigate()
 
@@ -58,7 +60,7 @@ export const RecipeAppBar = () => {
 					</IconButton>
 				}
 				<Typography variant="h4" component="div" sx={{ flexGrow: 1 }}>Recipe app</Typography>
-				{isAuthenticated && <Button color="inherit" onClick={logout}>Logout</Button>}
+				{isAuthenticated && <Button color="inherit" onClick={() => logout()}>Logout</Button>}
 			</Toolbar>
 		</AppBar>
 	)

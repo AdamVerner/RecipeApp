@@ -1,12 +1,11 @@
 import { useForm } from "react-hook-form"
 import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material"
-import { useUserStore } from "../user-store"
 import { useNavigate } from "react-router-dom"
 import { AppRoutes } from "../../RootRouter"
 import { useSnackbar } from "notistack"
 import { yupResolver } from "@hookform/resolvers/yup"
 import * as yup from "yup"
-import { useState } from "react"
+import { useUserLogin } from "../user-queries"
 
 interface UserLoginFormData {
 	email: string
@@ -14,8 +13,6 @@ interface UserLoginFormData {
 }
 
 export const UserLoginForm = () => {
-	const [isBusy, setIsBusy] = useState(false)
-
 	const validationSchema = yup.object().shape({
 		email: yup.string()
 			.required("Email is required")
@@ -32,16 +29,13 @@ export const UserLoginForm = () => {
 
 	const { enqueueSnackbar } = useSnackbar()
 
-	const { login } = useUserStore()
+	const { loginAsync, isLoading: isSubmitting } = useUserLogin()
 	const navigate = useNavigate()
 
 	const onSubmit = (data: UserLoginFormData) => {
-		setIsBusy(true)
-
-		login(data)
+		loginAsync(data)
 			.then(() => navigate(AppRoutes.UserRecipesRoute))
 			.catch(() => enqueueSnackbar("Login failed", { variant: "error" }))
-			.finally(() => setIsBusy(false))
 	}
 
 	return (
@@ -62,8 +56,8 @@ export const UserLoginForm = () => {
 						{...register("password")}
 						label="Password"
 					/>
-					<Button type="submit" disabled={isBusy} variant="contained">
-						{isBusy ? <CircularProgress size={25}/> : <span>Login</span>}
+					<Button type="submit" disabled={isSubmitting} variant="contained">
+						{isSubmitting ? <CircularProgress size={25}/> : <span>Login</span>}
 					</Button>
 				</Stack>
 			</form>

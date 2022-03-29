@@ -96,17 +96,16 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 	const { data: groceryCategories } = useGroceryCategories()
 	const { data: groceries } = useGroceries()
 
-	const saveRecipeForm = useSaveRecipeForm()
+	const { saveRecipeFormAsync, isLoading: isSubmitting } = useSaveRecipeForm()
 
 	const onSubmit = (data: RecipeFormData) => {
-		saveRecipeForm.mutateAsync(data)
+		saveRecipeFormAsync(data)
 			.then(() => {
 				enqueueSnackbar("Recipe created", { variant: "success" })
 				handleClose()
 			})
-			.catch((e) => {
+			.catch(() => {
 				enqueueSnackbar("Failed to create recipe", { variant: "error" })
-				console.error(e)
 			})
 	}
 
@@ -178,7 +177,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 								/>
 								<Button
 									type="submit"
-									disabled={saveRecipeForm.isLoading}
+									disabled={isSubmitting}
 									variant="contained"
 								>
 									Create
@@ -239,6 +238,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 										<Autocomplete
 											options={groceryCategories ?? []}
 											disabled={selectedGrocery !== undefined}
+
 											renderInput={(params) => <TextField
 												{...params}
 												label="Category"
@@ -278,7 +278,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 									error={!!errors.newItem?.value}
 									helperText={errors.newItem?.value?.message}
 								/>
-								<Button onClick={handleAddItem} disabled={saveRecipeForm.isLoading}>
+								<Button onClick={handleAddItem} disabled={isSubmitting}>
 									Add item
 								</Button>
 							</Stack>

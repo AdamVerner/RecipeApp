@@ -26,11 +26,16 @@ export const getUserDetail = () =>
 	axios.get<User>(USER_DETAIL_URL)
 		.then(res => res.data)
 
+export const authenticateToken = (token: string) =>
+	axios.get<User>(USER_DETAIL_URL, { headers: { "Authorization": token } })
+		.then(res => res.data)
+
+
 export const registerUser = (body: UserRegisterRequest) =>
 	axios.post<User>(USER_REGISTER_URL, body)
 		.then(res => res.data)
 
-export const authenticateUser = (body: UserLoginRequest) =>
+export const loginWithCredentials = (body: UserLoginRequest) =>
 	axios.post<AuthToken>(USER_LOGIN_URL, body)
 		.then(res => {
 			return res.data
