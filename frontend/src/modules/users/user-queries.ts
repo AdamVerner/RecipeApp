@@ -5,7 +5,6 @@ import {
 	UserLoginRequest,
 	authenticateToken,
 	getUserDetail,
-	UserRegisterRequest,
 	registerUser
 } from "./user-api"
 import axios, { AxiosError } from "axios"
