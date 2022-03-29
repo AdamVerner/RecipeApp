@@ -1,5 +1,5 @@
-import {createTheme} from "@mui/material"
-import {red} from "@mui/material/colors"
+import { createTheme } from "@mui/material"
+import { red } from "@mui/material/colors"
 
 type WithUndefinedValues<T> = { [K in keyof T]: T[K] | undefined }
 

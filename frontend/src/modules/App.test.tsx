@@ -4,6 +4,6 @@ import { App } from "./App"
 
 test("App contains login button", () => {
 	render(<App />)
-	const loginButton = screen.getByRole("button", { name: /login/i})
+	const loginButton = screen.getByRole("button", { name: /login/i })
 	expect(loginButton).toBeInTheDocument()
 })

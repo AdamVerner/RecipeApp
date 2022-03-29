@@ -1,6 +1,6 @@
-import {Paper, Grid} from "@mui/material"
-import {UserLoginForm} from "./UserLoginForm"
-import {UserRegisterForm} from "./UserRegisterForm"
+import { Paper, Grid } from "@mui/material"
+import { UserLoginForm } from "./UserLoginForm"
+import { UserRegisterForm } from "./UserRegisterForm"
 
 export const UserAuthenticate = () => (
 	<Grid

@@ -1,14 +1,19 @@
-import {FC} from "react"
-import {useLocation, Navigate} from "react-router-dom"
-import {useUserStore} from "./users/user-store"
-import {AppRoutes} from "./RootRouter"
+import { FC } from "react"
+import { Navigate, useLocation } from "react-router-dom"
+import { useAuthStore } from "./users/auth-store"
+import { AppRoutes } from "./RootRouter"
+import { Backdrop, CircularProgress } from "@mui/material"
 
 export const AuthGuard: FC = ({ children }) => {
-	const {isAuthenticated} = useUserStore()
+	const userStore = useAuthStore()
 	const location = useLocation()
 
-	if (!isAuthenticated) {
-		return <Navigate to={AppRoutes.UserAuthenticateRoute} state={{ from: location }} replace />
+	if (!userStore.authToken) {
+		return <Navigate to={AppRoutes.UserAuthenticateRoute} state={{ from: location }} replace/>
+	}
+
+	if (!userStore.isAuthenticated) {
+		return <Backdrop open={true}><CircularProgress /></Backdrop>
 	}
 
 	return <>{children}</>
