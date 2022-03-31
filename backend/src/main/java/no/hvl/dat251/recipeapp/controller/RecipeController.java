@@ -7,9 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import no.hvl.dat251.recipeapp.domain.Comment;
 import no.hvl.dat251.recipeapp.domain.Rating;
 import no.hvl.dat251.recipeapp.domain.Recipe;
-import no.hvl.dat251.recipeapp.domain.User;
 import no.hvl.dat251.recipeapp.service.RecipeService;
-import no.hvl.dat251.recipeapp.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,14 +15,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
-import java.time.Instant;
 import java.util.List;
 
 @RestController
 public class RecipeController {
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private RecipeService recipeService;
@@ -50,8 +44,7 @@ public class RecipeController {
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
     public ResponseEntity<List<Recipe>> getSuggestedRecipes() {
-        User user = userService.getCurrentUser();
-        return ResponseEntity.ok(recipeService.getSuggestedRecipes(user));
+        return ResponseEntity.ok(recipeService.getSuggestedRecipes());
     }
 
     @GetMapping("/recipes")
@@ -61,11 +54,10 @@ public class RecipeController {
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
     public ResponseEntity<List<Recipe>> getRecipesForCurrentUser(@RequestParam(required = false) String search) {
-        User user = userService.getCurrentUser();
         if(StringUtils.isBlank(search)) {
-            return ResponseEntity.ok(user.getRecipes());
+            return ResponseEntity.ok(recipeService.getRecipesByCurrentUser());
         } else {
-            return ResponseEntity.ok(recipeService.searchRecipes(search, user));
+            return ResponseEntity.ok(recipeService.searchRecipesByCurrentUser(search));
         }
     }
 
@@ -86,10 +78,6 @@ public class RecipeController {
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
     public ResponseEntity<Recipe> saveRecipe(@RequestBody Recipe recipe) {
-        User user = userService.getCurrentUser();
-        recipe.setUser(user);
-        recipe.setCreated(Instant.now());
-        recipe.getItems().forEach(item -> item.setRecipe(recipe));
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString()))
                 .body(recipeService.saveRecipe(recipe));
     }
@@ -101,9 +89,6 @@ public class RecipeController {
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
     public ResponseEntity<Comment> saveComment(@RequestBody Comment comment) {
-        User user = userService.getCurrentUser();
-        comment.setUser(user);
-        comment.setCreated(Instant.now());
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString()))
                 .body(recipeService.saveComment(comment));
     }
@@ -115,8 +100,6 @@ public class RecipeController {
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
     public ResponseEntity<Rating> saveRating(@RequestBody Rating rating) {
-        User user = userService.getCurrentUser();
-        rating.setUser(user);
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString()))
                 .body(recipeService.saveRating(rating));
     }
@@ -129,16 +112,6 @@ public class RecipeController {
     })
     public ResponseEntity<List<Comment>> getCommentsForRecipe(@PathVariable Integer id) {
         return ResponseEntity.ok(recipeService.getRecipe(id).getComments());
-    }
-
-    @GetMapping("/ratings/{id}")
-    @Operation(summary = "List all ratings for recipe with provided ID", responses = {
-            @ApiResponse(responseCode = "200", description = "Successful operation"),
-            @ApiResponse(responseCode = "403", description = "Forbidden for requests without authorization token",
-                    content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
-    })
-    public ResponseEntity<List<Rating>> getRatingsForRecipe(@PathVariable Integer id) {
-        return ResponseEntity.ok(recipeService.getRecipe(id).getRatings());
     }
 
 }

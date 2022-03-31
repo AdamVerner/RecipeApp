@@ -65,7 +65,7 @@ public class PantryController {
             @ApiResponse(responseCode = "403", description = "Forbidden for requests without authorization token",
                     content = @Content(schema = @Schema(implementation = ErrorController.ErrorResponse.class))),
     })
-    public ResponseEntity<Pantry> saveRecipe(@RequestBody Pantry pantry) {
+    public ResponseEntity<Pantry> savePantry(@RequestBody Pantry pantry) {
         User user = userService.getCurrentUser();
         pantry.setUser(user);
         return ResponseEntity.created(URI.create(ServletUriComponentsBuilder.fromCurrentRequestUri().toUriString()))

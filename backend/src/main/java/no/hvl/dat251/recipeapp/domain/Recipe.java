@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -42,6 +44,13 @@ public class Recipe implements ObjectWithId {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Instant created;
 
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private transient double averageRating;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private transient int currentUserRating;
+
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "recipe", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<RecipeItem> items = new ArrayList<>();
 
@@ -50,6 +59,7 @@ public class Recipe implements ObjectWithId {
     private List<Comment> comments = new ArrayList<>();
 
     @JsonIgnore
+    @LazyCollection(LazyCollectionOption.FALSE)
     @OneToMany(mappedBy = "recipe", cascade = {CascadeType.ALL}, orphanRemoval = true)
     private List<Rating> ratings = new ArrayList<>();
 
