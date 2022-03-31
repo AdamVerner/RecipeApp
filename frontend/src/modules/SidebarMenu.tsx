@@ -1,0 +1,26 @@
+import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material"
+import HomeIcon from "@mui/icons-material/Home"
+import RestaurantIcon from "@mui/icons-material/Restaurant"
+import { AppRoutes } from "./RootRouter"
+import { useNavigate } from "react-router-dom"
+
+export const SidebarMenu = () => {
+	const navigate = useNavigate()
+
+	return (
+		<List>
+			<ListItem button onClick={() => navigate(AppRoutes.PantryRoute)}>
+				<ListItemIcon><HomeIcon /></ListItemIcon>
+				<ListItemText primary="Pantry" />
+			</ListItem>
+			<ListItem button onClick={() => navigate(AppRoutes.UserRecipesRoute)}>
+				<ListItemIcon><RestaurantIcon /></ListItemIcon>
+				<ListItemText primary="My recipes" />
+			</ListItem>
+			<ListItem button onClick={() => navigate(AppRoutes.AllRecipesRoute)}>
+				<ListItemIcon><RestaurantIcon /></ListItemIcon>
+				<ListItemText primary="Browse recipes" />
+			</ListItem>
+		</List>
+	)
+}

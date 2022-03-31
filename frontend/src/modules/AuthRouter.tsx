@@ -2,22 +2,28 @@ import { Routes, Route } from "react-router-dom"
 import { RecipeDetail } from "./recipes/components/RecipeDetail"
 import { RecipeBrowser } from "./recipes/components/RecipeBrowser"
 import { useAllRecipes, useUserRecipes } from "./recipes/recipe-queries"
+import { Pantry } from "./pantry/components/Pantry"
 
 export enum AppAuthRoutes {
-	UserRecipesRoute = "/",
-	AllRecipesRoute = "/recipes",
-	RecipeDetailRoute = "/recipes"
+	HomeRoute = "/",
+	UserRecipesRoute = "/user-recipes",
+	AllRecipesRoute = "/all-recipes",
+	RecipeDetailRoute = "/recipes",
+	PantryRoute = HomeRoute
 }
 
 export const AuthRouter = () => {
-	const userRecipes = useUserRecipes()
-	const allRecipes = useAllRecipes()
+	const { recipes: userRecipes } = useUserRecipes()
+	const { recipes: allRecipes } = useAllRecipes()
 
 	return (
-		<Routes>
-			<Route path={AppAuthRoutes.UserRecipesRoute} element={<RecipeBrowser recipes={userRecipes.data ?? []} />}/>
-			<Route path={AppAuthRoutes.AllRecipesRoute} element={<RecipeBrowser recipes={allRecipes.data ?? []} />}/>
-			<Route path={`${AppAuthRoutes.RecipeDetailRoute}/:id`} element={<RecipeDetail/>}/>
-		</Routes>
+		<>
+			<Routes>
+				<Route path={AppAuthRoutes.UserRecipesRoute} element={<RecipeBrowser recipes={userRecipes} />}/>
+				<Route path={AppAuthRoutes.AllRecipesRoute} element={<RecipeBrowser recipes={allRecipes} />}/>
+				<Route path={`${AppAuthRoutes.RecipeDetailRoute}/:id`} element={<RecipeDetail/>}/>
+				<Route path={AppAuthRoutes.PantryRoute} element={<Pantry />}/>
+			</Routes>
+		</>
 	)
 }

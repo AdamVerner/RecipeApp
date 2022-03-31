@@ -1,36 +1,17 @@
 import { useForm } from "react-hook-form"
 import { Button, CircularProgress, Grid, Stack, TextField, Typography } from "@mui/material"
 import { useSnackbar } from "notistack"
-import * as yup from "yup"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useRegisterUser } from "../user-queries"
-
-interface UserRegisterFormData {
-	email: string
-	password: string
-	firstName: string
-	lastName: string
-}
+import { UserRegisterFormData, UserRegisterSchema } from "../user-schemas"
 
 export const UserRegisterForm = () => {
-	const validationSchema = yup.object().shape({
-		email: yup.string()
-			.required("Email is required")
-			.email("Email is invalid"),
-		password: yup.string()
-			.required("Password is required"),
-		firstName: yup.string()
-			.required("Firstname is required"),
-		lastName: yup.string()
-			.required("Lastname is required")
-	})
-
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
 		reset
-	} = useForm<UserRegisterFormData>({ resolver: yupResolver(validationSchema) })
+	} = useForm<UserRegisterFormData>({ resolver: yupResolver(UserRegisterSchema) })
 
 	const { enqueueSnackbar } = useSnackbar()
 
