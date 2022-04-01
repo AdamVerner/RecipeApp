@@ -4,28 +4,18 @@ import { useNavigate } from "react-router-dom"
 import { AppRoutes } from "../../RootRouter"
 import { useSnackbar } from "notistack"
 import { yupResolver } from "@hookform/resolvers/yup"
-import * as yup from "yup"
 import { useUserLogin } from "../user-queries"
+import { UserLoginSchema, UserLoginFormData } from "../user-schemas"
 
-interface UserLoginFormData {
-	email: string
-	password: string
-}
+
 
 export const UserLoginForm = () => {
-	const validationSchema = yup.object().shape({
-		email: yup.string()
-			.required("Email is required")
-			.email("Email is invalid"),
-		password: yup.string()
-			.required("Password is required")
-	})
 
 	const {
 		register,
 		handleSubmit,
 		formState: { errors }
-	} = useForm<UserLoginFormData>({ resolver: yupResolver(validationSchema) })
+	} = useForm<UserLoginFormData>({ resolver: yupResolver(UserLoginSchema) })
 
 	const { enqueueSnackbar } = useSnackbar()
 
@@ -34,7 +24,7 @@ export const UserLoginForm = () => {
 
 	const onSubmit = (data: UserLoginFormData) => {
 		loginAsync(data)
-			.then(() => navigate(AppRoutes.UserRecipesRoute))
+			.then(() => navigate(AppRoutes.HomeRoute))
 			.catch(() => enqueueSnackbar("Login failed", { variant: "error" }))
 	}
 

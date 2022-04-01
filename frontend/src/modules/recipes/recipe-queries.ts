@@ -9,8 +9,8 @@ import {
 	saveRecipe,
 	SaveRecipeRequest
 } from "./recipe-api"
-import { RecipeFormData } from "./components/RecipeCreateDialog"
 import { Grocery } from "./recipe-models"
+import { GroceryFormData, RecipeFormData } from "./recipe-schemas"
 
 const ALL_RECIPES_QUERY_KEY = "recipes"
 const USER_RECIPES_QUERY_KEY = "user/recipes"
@@ -25,29 +25,55 @@ export const FindGrocery = (groceries: Grocery[], name: string) => {
 	return groceries.find(grocery => grocery.name.toLowerCase() == lowerCaseName)
 }
 
-export const useUserRecipes = () => useQuery(USER_RECIPES_QUERY_KEY, getUserRecipes)
+export const useUserRecipes = () => {
+	const { data, ...rest } = useQuery(USER_RECIPES_QUERY_KEY, getUserRecipes)
 
-export const useAllRecipes = () => useQuery(ALL_RECIPES_QUERY_KEY, getAllRecipes)
+	return { recipes: data ?? [], ...rest }
+}
 
-export const useRecipe = (id: number) =>
-	useQuery([ALL_RECIPES_QUERY_KEY, id], () => getRecipe(id))
+export const useAllRecipes = () => {
+	const { data, ...rest } = useQuery(ALL_RECIPES_QUERY_KEY, getAllRecipes)
 
-export const useGroceries = () =>
-	useQuery(GROCERIES_QUERY_KEY, getGroceries)
+	return { recipes: data ?? [], ...rest }
+}
+
+export const useRecipe = (id: number) => {
+	const { data, ...rest } = useQuery([ALL_RECIPES_QUERY_KEY, id], () => getRecipe(id))
+
+	return { recipe: data, ...rest }
+}
+
+
+export const useGroceries = () => {
+	const { data, ...rest } = useQuery(GROCERIES_QUERY_KEY, getGroceries)
+
+	return { groceries: data ?? [], ...rest }
+}
+
 
 export const useGrocery = (name: string) => {
-	const { data: groceries } = useGroceries()
+	const { groceries } = useGroceries()
 
-	return useQuery([GROCERIES_QUERY_KEY, name],
+	const { data, ...rest } =  useQuery([GROCERIES_QUERY_KEY, name],
 		() => FindGrocery(groceries ?? [], name),
 		{
 			enabled: groceries !== undefined
 		})
+
+	return { grocery: data, ...rest }
 }
 
-export const useQuantityUnits = () => useQuery(QUANTITY_UNITS_QUERY_KEY, getQuantityUnits)
+export const useQuantityUnits = () => {
+	const { data, ...rest } = useQuery(QUANTITY_UNITS_QUERY_KEY, getQuantityUnits)
 
-export const useGroceryCategories = () => useQuery(GROCERY_CATEGORIES_QUERY_KEY, getGroceryCategories)
+	return { quantityUnits: data ?? [], ...rest }
+}
+
+export const useGroceryCategories = () => {
+	const { data, ...rest } = useQuery(GROCERY_CATEGORIES_QUERY_KEY, getGroceryCategories)
+
+	return { groceryCategories: data ?? [], ...rest }
+}
 
 export const useSaveGrocery = () => {
 	const client = useQueryClient()
@@ -66,7 +92,6 @@ export const useSaveRecipe = () => {
 
 	const { mutate, mutateAsync, ...rest } = useMutation(saveRecipe, {
 		onSuccess: async () => {
-			console.log("recipe saved")
 			await client.invalidateQueries(ALL_RECIPES_QUERY_KEY)
 			await client.invalidateQueries(USER_RECIPES_QUERY_KEY)
 		}
@@ -75,41 +100,44 @@ export const useSaveRecipe = () => {
 	return { saveRecipe: mutate, saveRecipeAsync: mutateAsync, ...rest }
 }
 
-export const useSaveRecipeForm = () => {
-
+export const useGetOrSaveGrocery = () => {
 	const { saveGroceryAsync } = useSaveGrocery()
-	const { saveRecipeAsync } = useSaveRecipe()
-	const { data: groceries } = useGroceries()
+	const { groceries } = useGroceries()
 
-	const { mutate, mutateAsync, ...rest } = useMutation(async (recipe: RecipeFormData) => {
-		const items: {
-			grocery: number
-			unit: string
-			quantity: number
-		}[] = []
+	const { mutate, mutateAsync, ...rest } = useMutation(GROCERIES_QUERY_KEY, async (item: GroceryFormData) => {
 
-		for (const item of recipe.items) {
-			const unit = item.quantityUnit
-			const quantity = item.value
+		const unit = item.unit
+		const quantity = item.quantity
 
-			const grocery = FindGrocery(groceries ?? [], item.grocery)
+		const grocery = FindGrocery(groceries, item.grocery)
 
-			if (grocery) {
-				items.push({
-					grocery: grocery.id,
-					unit,
-					quantity
-				})
-			} else {
-				const newGrocery = await saveGroceryAsync({ name: item.grocery, category: item.category })
+		if (grocery) {
 
-				items.push({
-					grocery: newGrocery.id,
-					unit,
-					quantity
-				})
+			return {
+				grocery: grocery.id,
+				unit,
+				quantity
+			}
+		} else {
+			const newGrocery = await saveGroceryAsync({ name: item.grocery, category: item.category })
+
+			return {
+				grocery: newGrocery.id,
+				unit,
+				quantity
 			}
 		}
+	})
+
+	return { getOrSaveGrocery: mutate, getOrSaveGroceryAsync: mutateAsync, ...rest }
+}
+
+export const useSaveRecipeForm = () => {
+	const { getOrSaveGroceryAsync } = useGetOrSaveGrocery()
+	const { saveRecipeAsync } = useSaveRecipe()
+
+	const { mutate, mutateAsync, ...rest } = useMutation(async (recipe: RecipeFormData) => {
+		const items = await Promise.all(recipe.items.map(async (item) => await getOrSaveGroceryAsync(item)))
 
 		const saveRequest: SaveRecipeRequest = {
 			name: recipe.name,
@@ -118,7 +146,7 @@ export const useSaveRecipeForm = () => {
 			items
 		}
 
-		await saveRecipeAsync(saveRequest)
+		return await saveRecipeAsync(saveRequest)
 	})
 
 	return { saveRecipeForm: mutate, saveRecipeFormAsync: mutateAsync, ...rest }

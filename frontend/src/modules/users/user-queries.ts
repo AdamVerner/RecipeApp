@@ -9,6 +9,7 @@ import {
 } from "./user-api"
 import axios, { AxiosError } from "axios"
 import { useEffect, useState } from "react"
+import { useSnackbar } from "notistack"
 
 const USER_QUERY_KEY = "user"
 
@@ -100,21 +101,23 @@ export const useReauthenticateTokenEffect = () => {
 export const useAxiosAuthSetupEffect = () => {
 	const authStore = useAuthStore()
 	const { logoutAsync, } = useUserLogout()
+	const { enqueueSnackbar } = useSnackbar()
 
 	const [isInit, setIsInit] = useState(false)
 
 	useEffect(() => {
 		if (!isInit) {
-			axios.interceptors.response.use(async (response) => {
-				return response
-			}, async (error: AxiosError) =>
-			{
-				if (error.response?.status === 403) {
-					await logoutAsync()
-				}
-			})
+			axios.interceptors.response.use(async (response) => response,
+				async (error: AxiosError) =>
+				{
+					enqueueSnackbar(error.message, { variant: "error" })
+
+					if (error.response?.status === 403) {
+						await logoutAsync()
+					}
+				})
 
 			setIsInit(true)
 		}
-	}, [authStore, isInit, logoutAsync])
+	}, [authStore, enqueueSnackbar, isInit, logoutAsync])
 }

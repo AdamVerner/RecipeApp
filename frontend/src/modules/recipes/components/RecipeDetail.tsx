@@ -29,8 +29,8 @@ export const RecipeDetail = () => {
 	const { id } = useParams()
 	const navigate = useNavigate()
 
-	const { data: groceries } = useGroceries()
-	const { data: recipe } = useRecipe(Number(id))
+	const { groceries } = useGroceries()
+	const { recipe } = useRecipe(Number(id))
 
 	const recipeItems = useMemo(() => {
 		if (!recipe) {
