@@ -3,13 +3,13 @@ import {
 	getAllRecipes,
 	getGroceries,
 	getGroceryCategories,
-	getQuantityUnits, getRecipe,
+	getQuantityUnits, getRecipe, getRecipeComments,
 	getUserRecipes,
 	saveGrocery,
-	saveRecipe,
+	saveRecipe, saveRecipeComment, saveRecipeRating,
 	SaveRecipeRequest
 } from "./recipe-api"
-import { Grocery } from "./recipe-models"
+import { Grocery, Recipe } from "./recipe-models"
 import { GroceryFormData, RecipeFormData } from "./recipe-schemas"
 
 const ALL_RECIPES_QUERY_KEY = "recipes"
@@ -18,6 +18,7 @@ const USER_RECIPES_QUERY_KEY = "user/recipes"
 const GROCERIES_QUERY_KEY = "groceries"
 const QUANTITY_UNITS_QUERY_KEY = "quantity-units"
 const GROCERY_CATEGORIES_QUERY_KEY = "categories"
+const RECIPE_COMMENTS_QUERY_KEY = "comments"
 
 export const FindGrocery = (groceries: Grocery[], name: string) => {
 	const lowerCaseName = name.toLowerCase()
@@ -150,4 +151,64 @@ export const useSaveRecipeForm = () => {
 	})
 
 	return { saveRecipeForm: mutate, saveRecipeFormAsync: mutateAsync, ...rest }
+}
+
+export const useRecipeComments = (recipeId: number) => {
+	const { data, ...rest } = useQuery([RECIPE_COMMENTS_QUERY_KEY, recipeId], () => getRecipeComments(recipeId))
+
+	return { recipeComments: data, ...rest }
+
+}
+
+export const useSaveRecipeComment = () => {
+	const client = useQueryClient()
+
+	const { mutate, mutateAsync, ...rest } = useMutation(saveRecipeComment, {
+		onSuccess: async (_, request) => {
+			await client.invalidateQueries([RECIPE_COMMENTS_QUERY_KEY, request.recipe])
+		}
+	})
+
+	return { saveRecipeComment: mutate, saveRecipeCommentAsync: mutateAsync, ...rest }
+}
+
+const updateRecipes = (recipes: Recipe[], updatedRecipe: Recipe) => {
+	const recipeIdx = recipes.findIndex(recipe => recipe.id === updatedRecipe.id)
+
+	if (recipeIdx !== -1) {
+		const updatedRecipes = [...recipes]
+		updatedRecipes[recipeIdx] = updatedRecipe
+
+		return updatedRecipes
+	}
+
+	return recipes
+}
+
+export const useSaveRecipeRating = () => {
+	const client = useQueryClient()
+
+	const { mutate, mutateAsync, ...rest } = useMutation(saveRecipeRating, {
+		onSuccess: async (_, request) => {
+			await client.invalidateQueries([ALL_RECIPES_QUERY_KEY, request.recipe])
+
+			const updatedRecipe = client.getQueryData<Recipe>([ALL_RECIPES_QUERY_KEY, request.recipe])
+			const recipes = client.getQueryData<Recipe[]>(ALL_RECIPES_QUERY_KEY)
+			const userRecipes = client.getQueryData<Recipe[]>(USER_RECIPES_QUERY_KEY)
+
+			if (!updatedRecipe) {
+				return
+			}
+
+			if (recipes) {
+				client.setQueryData<Recipe[]>(ALL_RECIPES_QUERY_KEY, updateRecipes(recipes, updatedRecipe))
+			}
+
+			if (userRecipes) {
+				client.setQueryData<Recipe[]>(USER_RECIPES_QUERY_KEY, updateRecipes(userRecipes, updatedRecipe))
+			}
+		}
+	})
+
+	return { saveRecipeRating: mutate, saveRecipeRatingAsync: mutateAsync, ...rest }
 }

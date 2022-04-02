@@ -1,6 +1,13 @@
 import * as yup from "yup"
 import { SchemaOf } from "yup"
 
+export interface GroceryFormData {
+	unit: string
+	quantity: number
+	grocery: string
+	category: string
+}
+
 export const GrocerySchema: SchemaOf<GroceryFormData> = yup.object().shape({
 	unit: yup.string()
 		.transform((current, input) => !input ? "" : current)
@@ -17,11 +24,11 @@ export const GrocerySchema: SchemaOf<GroceryFormData> = yup.object().shape({
 		.required("Category is required")
 })
 
-export interface GroceryFormData {
-	unit: string
-	quantity: number
-	grocery: string
-	category: string
+export interface RecipeFormData {
+	instructions: string
+	name: string
+	portions: number
+	items: GroceryFormData[]
 }
 
 export const RecipeSchema: SchemaOf<RecipeFormData> = yup.object().shape({
@@ -34,12 +41,15 @@ export const RecipeSchema: SchemaOf<RecipeFormData> = yup.object().shape({
 		.min(1, "Recipe need to have at least one portion")
 		.integer("Portions can't be fractional")
 		.typeError("You must enter a number"),
-	items: yup.array().of(GrocerySchema).optional()
+	items: yup.array().of(GrocerySchema)
+		.min(1, "Recipe needs at least one ingredient")
+		.required("Ingredients are required")
 })
 
-export interface RecipeFormData {
-	name: string
-	instructions: string
-	portions: number
-	items: GroceryFormData[]
+export interface RecipeCommentFormData {
+	text: string
 }
+
+export const RecipeCommentSchema: SchemaOf<RecipeCommentFormData> = yup.object().shape({
+	text: yup.string().required("Text is required")
+})

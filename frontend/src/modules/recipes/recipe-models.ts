@@ -5,6 +5,8 @@ export interface Recipe {
 	name: string
 	portions: number
 	instructions: string
+	averageRating: number
+	currentUserRating: number
 	user: User
 	items: RecipeItem[]
 }
@@ -19,6 +21,14 @@ export interface Grocery {
 
 export interface RecipeItem {
 	grocery: number
-	quantity: number
 	unit: string
+	quantity: number
+}
+
+export interface RecipeComment {
+	id: number
+	recipe: number
+	user: User
+	text: string
+	created: Date
 }

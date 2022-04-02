@@ -13,6 +13,7 @@ import {
 	List,
 	ListItem,
 	IconButton,
+	Chip,
 	ListItemText, styled, Divider, ListSubheader
 } from "@mui/material"
 import { useSnackbar } from "notistack"
@@ -34,6 +35,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 		control,
 		register,
 		handleSubmit,
+		trigger,
 		formState: { errors }
 	} = useForm<RecipeFormData>({ resolver: yupResolver(RecipeSchema) })
 
@@ -54,6 +56,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 
 	const handleAddItem = async (data: GroceryFormData) => {
 		append(data)
+		await trigger("items")
 	}
 
 	return (
@@ -115,6 +118,12 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 								sx={{ flexGrow: 1 }}
 								subheader={
 									<ListSubheader>
+										{ !!errors.items &&
+											<Chip
+												color="error"
+												label="Recipe needs at least one recipe"
+											/>
+										}
 										<Typography variant="h5">Ingredients</Typography>
 									</ListSubheader>}
 							>
