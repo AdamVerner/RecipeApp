@@ -2,8 +2,6 @@ package no.hvl.dat251.recipeapp.service;
 
 import lombok.extern.slf4j.Slf4j;
 import no.hvl.dat251.recipeapp.domain.*;
-import no.hvl.dat251.recipeapp.repository.CommentRepository;
-import no.hvl.dat251.recipeapp.repository.RatingRepository;
 import no.hvl.dat251.recipeapp.repository.RecipeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,12 +18,6 @@ public class RecipeService {
 
     @Autowired
     private RecipeRepository recipeRepository;
-
-    @Autowired
-    private CommentRepository commentRepository;
-
-    @Autowired
-    private RatingRepository ratingRepository;
 
     @Autowired
     private UserService userService;
@@ -88,13 +80,18 @@ public class RecipeService {
         User user = userService.getCurrentUser();
         comment.setUser(user);
         comment.setCreated(Instant.now());
-        return commentRepository.save(comment);
+        comment.getRecipe().getComments().add(comment);
+        recipeRepository.save(comment.getRecipe());
+        return comment;
     }
 
     public Rating saveRating(Rating rating) {
         User user = userService.getCurrentUser();
         rating.setUser(user);
-        return ratingRepository.save(rating);
+        rating.getRecipe().getRatings().removeIf(r -> r.getUser().equalsById(user));
+        rating.getRecipe().getRatings().add(rating);
+        recipeRepository.save(rating.getRecipe());
+        return rating;
     }
 
     private Recipe computeRecipeRatings(Recipe recipe, User user) {
