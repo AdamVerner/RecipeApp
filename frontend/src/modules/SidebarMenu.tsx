@@ -12,24 +12,24 @@ export const SidebarMenu = () => {
 	return (
 		<List>
 			<ListItem button onClick={() => navigate(AppRoutes.PantryRoute)}>
-				<ListItemIcon><HomeIcon /></ListItemIcon>
-				<ListItemText primary="Pantry" />
+				<ListItemIcon><HomeIcon/></ListItemIcon>
+				<ListItemText primary="Pantry"/>
 			</ListItem>
 			<ListItem button onClick={() => navigate(AppRoutes.UserRecipesRoute)}>
-				<ListItemIcon><RestaurantIcon /></ListItemIcon>
-				<ListItemText primary="My recipes" />
+				<ListItemIcon><RestaurantIcon/></ListItemIcon>
+				<ListItemText primary="My recipes"/>
 			</ListItem>
 			<ListItem button onClick={() => navigate(AppRoutes.AllRecipesRoute)}>
-				<ListItemIcon><RestaurantIcon /></ListItemIcon>
-				<ListItemText primary="Browse recipes" />
+				<ListItemIcon><RestaurantIcon/></ListItemIcon>
+				<ListItemText primary="Browse recipes"/>
 			</ListItem>
 			<ListItem button>
-				<ListItemIcon><PersonIcon /></ListItemIcon>
-				<ListItemText primary="Profile" />
+				<ListItemIcon><PersonIcon/></ListItemIcon>
+				<ListItemText primary="Profile"/>
 			</ListItem>
 			<ListItem button>
-				<ListItemIcon><SettingsIcon /></ListItemIcon>
-				<ListItemText primary="Settings" />
+				<ListItemIcon><SettingsIcon/></ListItemIcon>
+				<ListItemText primary="Settings"/>
 			</ListItem>
 		</List>
 	)
