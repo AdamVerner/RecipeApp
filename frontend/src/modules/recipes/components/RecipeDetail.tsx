@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "react-router-dom"
 import {
-	Button,
+	IconButton,
 	Card,
 	List,
 	ListItemText,
@@ -9,13 +9,19 @@ import {
 	ListItem,
 	ListSubheader,
 	Divider,
-	Rating
+	Rating,
+	styled
 } from "@mui/material"
 import RestaurantIcon from "@mui/icons-material/Restaurant"
 import KitchenIcon from "@mui/icons-material/Kitchen"
-import { useMemo } from "react"
-import styled from "@emotion/styled"
-import { useGroceries, useRecipe } from "../recipe-queries"
+import { useEffect, useMemo, useState } from "react"
+import { useGroceries, useRecipe, useSaveRecipeRating } from "../recipe-queries"
+import { RecipeCommentList } from "./RecipeCommentList"
+import { SaveRecipeCommentForm } from "./SaveRecipeCommentForm"
+import { useSnackbar } from "notistack"
+import { RecipeAverageRating } from "./RecipeAverageRating"
+import ArrowBackIcon from "@mui/icons-material/ArrowBack"
+import { TextStack } from "../../styles/containers"
 
 interface RecipeItemDetail {
 	id: number
@@ -28,6 +34,7 @@ interface RecipeItemDetail {
 export const RecipeDetail = () => {
 	const { id } = useParams()
 	const navigate = useNavigate()
+	const { enqueueSnackbar } = useSnackbar()
 
 	const { groceries } = useGroceries()
 	const { recipe } = useRecipe(Number(id))
@@ -52,19 +59,54 @@ export const RecipeDetail = () => {
 		})
 	}, [recipe, groceries])
 
+	const { saveRecipeRatingAsync, isLoading: isSavingRating } = useSaveRecipeRating()
+
+	const handleRatingClick = (value: number | null) => {
+		if (!recipe || !value) {
+			return
+		}
+
+		saveRecipeRatingAsync({ recipe: recipe.id, rating: value })
+			.then(() => {
+				enqueueSnackbar("Rating saved", { variant: "success" })
+			})
+	}
+
+	const [ratingValue, setRatingValue] = useState(0)
+
+	useEffect(() => {
+		if (recipe) {
+			setRatingValue(recipe.currentUserRating)
+		}
+	}, [recipe])
 
 	return (
 		<>
 			<Stack spacing={2}>
 				<RecipeCard>
 					<Stack spacing={2}>
-						<Typography variant="h4">{recipe?.name}</Typography>
-						<Rating />
-						<Typography><RestaurantIcon/> Portions: {recipe?.portions}</Typography>
+						<div>
+							<IconButton onClick={() => navigate(-1)} ><ArrowBackIcon /></IconButton>
+						</div>
+						<TextStack spacing={2}>
+							<Typography variant="h4">{recipe?.name}</Typography>
+							<RecipeAverageRating recipe={recipe} />
+						</TextStack>
+						<TextStack>
+							<RestaurantIcon/>
+							<Typography>Portions: {recipe?.portions}</Typography>
+						</TextStack>
 						<Divider/>
 						<List
 							dense
-							subheader={<ListSubheader><KitchenIcon/> Ingredients</ListSubheader>}
+							subheader={
+								<ListSubheader>
+									<TextStack>
+										<KitchenIcon/>
+										<Typography>Ingredients</Typography>
+									</TextStack>
+								</ListSubheader>
+							}
 						>
 							{recipeItems.map((item, i) => (
 								<ListItem key={i}>
@@ -75,7 +117,21 @@ export const RecipeDetail = () => {
 						<Divider/>
 						<Typography variant="h5">Instructions</Typography>
 						<InstructionsTypography>{recipe?.instructions}</InstructionsTypography>
-						<Button onClick={() => navigate(-1)}>Back</Button>
+						<Divider />
+						<TextStack>
+							<Typography>Your rating</Typography>
+							<Rating
+								value={ratingValue}
+								onChange={(_, value) => handleRatingClick(value)}
+								readOnly={isSavingRating}
+							/>
+						</TextStack>
+						{ recipe &&
+							<SaveRecipeCommentForm recipeId={recipe.id} />
+						}
+						{ recipe &&
+							<RecipeCommentList recipeId={recipe.id} />
+						}
 					</Stack>
 				</RecipeCard>
 			</Stack>

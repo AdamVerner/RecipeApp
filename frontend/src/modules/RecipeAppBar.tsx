@@ -38,7 +38,7 @@ const DrawerWidth = 240
 export const RecipeAppBar = () => {
 	const { isAuthenticated } = useAuthStore()
 	const { logout } = useUserLogout()
-	const [showMenu, setShowMenu] = useState(false)
+	const [showMenu, setShowMenu] = useState(true)
 	const location = useLocation()
 
 	const title = useMemo(() => {
