@@ -32,8 +32,9 @@ public class PantryService {
 
     public List<Pantry> searchPantry(String search, User user) {
         String hql = "select p from Pantry p where p.user = :user and lower(p.grocery.name) like lower(:search)";
-        Session session = sessionFactory.openSession();
-        return session.createQuery(hql, Pantry.class).setParameter("user", user).setParameter("search", "%" + search + "%").list();
+        try(Session session = sessionFactory.openSession()) {
+            return session.createQuery(hql, Pantry.class).setParameter("user", user).setParameter("search", "%" + search + "%").list();
+        }
     }
 
     public void deletePantry(Pantry pantry) {

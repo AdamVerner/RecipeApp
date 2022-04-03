@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import lombok.extern.slf4j.Slf4j;
 import no.hvl.dat251.recipeapp.common.ApplicationContextProvider;
 import no.hvl.dat251.recipeapp.domain.ObjectWithId;
+import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -56,7 +57,9 @@ public class ObjectWithIdDeserializer<T extends ObjectWithId> extends StdDeseria
 
     @Transactional(rollbackFor = Exception.class)
     public T getObjectWithId(Integer id) {
-        return ApplicationContextProvider.getSessionFactory().openSession().get(clazz, id);
+        try(Session session = ApplicationContextProvider.getSessionFactory().openSession()) {
+            return session.get(clazz, id);
+        }
     }
 
 }
