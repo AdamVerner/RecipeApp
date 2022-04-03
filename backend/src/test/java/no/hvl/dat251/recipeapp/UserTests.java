@@ -14,6 +14,9 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
@@ -33,30 +36,33 @@ class UserTests {
 	void getUserTest() throws Exception {
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
 				.get("/user")
-				.header("Authorization", testService.generateToken()))
+				.header(TestService.AUTHORIZATION_HEADER, testService.generateToken()))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andReturn();
 		User user = objectMapper.readValue(mvcResult.getResponse().getContentAsString(), User.class);
 		Assertions.assertEquals("test@email.com", user.getEmail());
-		Assertions.assertEquals("password", user.getPassword());
 		Assertions.assertEquals("Test", user.getFirstName());
 		Assertions.assertEquals("Test", user.getLastName());
 	}
 
 	@Test
 	void userCreationTest() throws Exception {
-		User user = new User(null, "email@email.com", "password", "First", "Last");
+		Map<String, String> user = new HashMap<>();
+		user.put("email", "email@email.com");
+		user.put("password", "password");
+		user.put("firstName", "First");
+		user.put("lastName", "Last");
 
 		mockMvc.perform(MockMvcRequestBuilders
 				.post("/user")
-				.header("Authorization", testService.generateToken())
+				.header(TestService.AUTHORIZATION_HEADER, testService.generateToken())
 				.contentType(MediaType.APPLICATION_JSON_VALUE)
 				.content(objectMapper.writeValueAsString(user)))
 				.andExpect(MockMvcResultMatchers.status().isCreated());
 
 		MvcResult mvcResult = mockMvc.perform(MockMvcRequestBuilders
 				.get("/user")
-				.header("Authorization", testService.generateToken("email@email.com")))
+				.header(TestService.AUTHORIZATION_HEADER, testService.generateToken("email@email.com")))
 				.andExpect(MockMvcResultMatchers.status().isOk())
 				.andReturn();
 
