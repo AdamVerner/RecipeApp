@@ -1,12 +1,16 @@
 package no.hvl.dat251.recipeapp.service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.coobird.thumbnailator.Thumbnails;
 import no.hvl.dat251.recipeapp.domain.*;
 import no.hvl.dat251.recipeapp.repository.RecipeRepository;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,12 +32,30 @@ public class RecipeService {
         recipe.setUser(user);
         recipe.setCreated(Instant.now());
         recipe.getItems().forEach(item -> item.setRecipe(recipe));
+        if(ArrayUtils.isNotEmpty(recipe.getImage())) {
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(recipe.getImage());
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            try {
+                Thumbnails.of(inputStream)
+                        .size(800, 600)
+                        .outputFormat("JPEG")
+                        .outputQuality(0.8)
+                        .toOutputStream(outputStream);
+                recipe.setImage(outputStream.toByteArray());
+            } catch(Exception e) {
+                recipe.setImage(null);
+            }
+        }
         return recipeRepository.save(recipe);
     }
 
     public Recipe getRecipe(Integer id) {
         User user = userService.getCurrentUser();
         return recipeRepository.findById(id).map(r -> computeRecipeRatings(r, user)).orElse(null);
+    }
+
+    public byte[] getRecipeImage(Integer id) {
+        return recipeRepository.findById(id).map(Recipe::getImage).orElse(null);
     }
 
     public List<Recipe> getAllRecipes() {
