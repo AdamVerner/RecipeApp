@@ -44,6 +44,10 @@ public class Recipe implements ObjectWithId {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Instant created;
 
+    @Lob
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private byte[] image;
+
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private transient double averageRating;
 
