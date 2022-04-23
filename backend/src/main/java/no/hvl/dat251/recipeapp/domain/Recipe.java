@@ -59,7 +59,7 @@ public class Recipe implements ObjectWithId {
     private List<RecipeItem> items = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "recipe", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Comment> comments = new ArrayList<>();
 
     @JsonIgnore
