@@ -22,6 +22,7 @@ import { useSnackbar } from "notistack"
 import { RecipeAverageRating } from "./RecipeAverageRating"
 import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { TextStack } from "../../styles/containers"
+import { AppConfig } from "../../app-config"
 
 interface RecipeItemDetail {
 	id: number
@@ -85,28 +86,33 @@ export const RecipeDetail = () => {
 			<Stack spacing={2}>
 				<RecipeCard>
 					<Stack spacing={2}>
-						<div>
-							<IconButton onClick={() => navigate(-1)} ><ArrowBackIcon /></IconButton>
-						</div>
-						<TextStack spacing={2}>
+						<TextStack spacing={2} justifyContent="space-between">
 							<Typography variant="h4">{recipe?.name}</Typography>
-							<RecipeAverageRating recipe={recipe} />
+							<Stack alignItems="end" spacing={1}>
+								<RecipeAverageRating recipe={recipe} />
+								<TextStack>
+									<Typography>Your rating</Typography>
+									<Rating
+										value={ratingValue}
+										onChange={(_, value) => handleRatingClick(value)}
+										readOnly={isSavingRating}
+									/>
+								</TextStack>
+							</Stack>
 						</TextStack>
-						<TextStack>
-							<RestaurantIcon/>
-							<Typography>Portions: {recipe?.portions}</Typography>
-						</TextStack>
-						<Divider/>
+						{ recipe?.imageUrl &&
+							<img src={recipe?.imageUrl} alt={recipe?.name} />
+						}
+						{ !recipe?.imageUrl &&
+							<Divider/>
+						}
+						<Typography variant="h5">
+							<TextStack>
+								Ingredients
+							</TextStack>
+						</Typography>
 						<List
 							dense
-							subheader={
-								<ListSubheader>
-									<TextStack>
-										<KitchenIcon/>
-										<Typography>Ingredients</Typography>
-									</TextStack>
-								</ListSubheader>
-							}
 						>
 							{recipeItems.map((item, i) => (
 								<ListItem key={i}>
@@ -116,16 +122,12 @@ export const RecipeDetail = () => {
 						</List>
 						<Divider/>
 						<Typography variant="h5">Instructions</Typography>
+						<TextStack>
+							<RestaurantIcon/>
+							<Typography>Portions: {recipe?.portions}</Typography>
+						</TextStack>
 						<InstructionsTypography>{recipe?.instructions}</InstructionsTypography>
 						<Divider />
-						<TextStack>
-							<Typography>Your rating</Typography>
-							<Rating
-								value={ratingValue}
-								onChange={(_, value) => handleRatingClick(value)}
-								readOnly={isSavingRating}
-							/>
-						</TextStack>
 						{ recipe &&
 							<SaveRecipeCommentForm recipeId={recipe.id} />
 						}
