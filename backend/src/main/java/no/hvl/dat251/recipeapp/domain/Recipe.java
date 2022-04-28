@@ -49,6 +49,9 @@ public class Recipe implements ObjectWithId {
     private byte[] image;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private transient String imageUrl;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private transient double averageRating;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
