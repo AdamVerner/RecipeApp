@@ -1,7 +1,6 @@
 package no.hvl.dat251.recipeapp.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,7 +20,7 @@ public class Pantry implements ObjectWithId {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seqPantry")
     @SequenceGenerator(name = "seqPantry", sequenceName = "pantry_id_seq", allocationSize = 1)
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    //@JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private Integer id;
 
     @NotNull

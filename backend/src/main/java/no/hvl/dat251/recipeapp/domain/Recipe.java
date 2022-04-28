@@ -49,6 +49,9 @@ public class Recipe implements ObjectWithId {
     private byte[] image;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    private transient String imageUrl;
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private transient double averageRating;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -59,7 +62,7 @@ public class Recipe implements ObjectWithId {
     private List<RecipeItem> items = new ArrayList<>();
 
     @JsonIgnore
-    @OneToMany(mappedBy = "recipe", cascade = {CascadeType.ALL}, orphanRemoval = true)
+    @OneToMany(mappedBy = "recipe", cascade = {CascadeType.ALL}, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Comment> comments = new ArrayList<>();
 
     @JsonIgnore
