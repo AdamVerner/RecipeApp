@@ -4,16 +4,18 @@ import { useSnackbar } from "notistack"
 import { yupResolver } from "@hookform/resolvers/yup"
 import { useRegisterUser } from "../user-queries"
 import { UserRegisterFormData, UserRegisterSchema } from "../user-schemas"
+import { AppRoutes } from "../../RootRouter"
+import { Link, useNavigate } from "react-router-dom"
 
 export const UserRegisterForm = () => {
 	const {
 		register,
 		handleSubmit,
-		formState: { errors },
-		reset
+		formState: { errors }
 	} = useForm<UserRegisterFormData>({ resolver: yupResolver(UserRegisterSchema) })
 
 	const { enqueueSnackbar } = useSnackbar()
+	const navigate = useNavigate()
 
 	const { registerAsync, isLoading: isSubmitting } = useRegisterUser()
 
@@ -21,7 +23,7 @@ export const UserRegisterForm = () => {
 		registerAsync(data)
 			.then(_ => {
 				enqueueSnackbar("Registration successful", { variant: "success" })
-				reset()
+				navigate(AppRoutes.UserLoginRoute)
 			})
 			.catch(_ => {
 				enqueueSnackbar("Registration failed", { variant: "error" })
@@ -58,6 +60,7 @@ export const UserRegisterForm = () => {
 				<Button type="submit" variant="contained" disabled={isSubmitting}>
 					{isSubmitting ? <CircularProgress size={25}/> : <>Register</>}
 				</Button>
+				<Link to={AppRoutes.UserLoginRoute}><Typography>Already have an account?</Typography></Link>
 			</Stack>
 		</form>
 	)

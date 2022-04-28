@@ -9,7 +9,7 @@ export const AuthGuard: FC = ({ children }) => {
 	const location = useLocation()
 
 	if (!userStore.authToken) {
-		return <Navigate to={AppRoutes.UserAuthenticateRoute} state={{ from: location }} replace/>
+		return <Navigate to={AppRoutes.UserLoginRoute} state={{ from: location }} replace/>
 	}
 
 	if (!userStore.isAuthenticated) {
