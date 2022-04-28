@@ -28,8 +28,9 @@ public class RecipeService {
 
 
     public Recipe saveRecipe(Recipe recipe) {
-        User user = userService.getCurrentUser();
-        recipe.setUser(user);
+        if(recipe.getUser() == null) {
+            recipe.setUser(userService.getCurrentUser());
+        }
         recipe.setCreated(Instant.now());
         recipe.getItems().forEach(item -> item.setRecipe(recipe));
         if(ArrayUtils.isNotEmpty(recipe.getImage())) {
