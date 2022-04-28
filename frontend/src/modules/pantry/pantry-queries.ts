@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "react-query"
 import { deletePantryItem, getPantryItems, savePantryItem } from "./pantry-api"
-import { useGetOrSaveGrocery, useGroceries } from "../recipes/recipe-queries"
+import { useGetOrCreateGroceryId, useGroceries } from "../recipes/recipe-queries"
 import { PantryGroceryFormData } from "./pantry-schemas"
 import { useMemo } from "react"
 import { PantryItemDisplay } from "./pantry-models"
@@ -50,12 +50,18 @@ export const useSavePantryItem = () => {
 }
 
 export const useSavePantryItemForm = () => {
-	const { getOrSaveGroceryAsync } = useGetOrSaveGrocery()
+	const { getOrCreateGroceryIdAsync } = useGetOrCreateGroceryId()
 	const { savePantryItemAsync } = useSavePantryItem()
 
 	const { mutate, mutateAsync, ...rest } = useMutation(async (data: PantryGroceryFormData) => {
-		const result = await getOrSaveGroceryAsync(data)
-		await savePantryItemAsync({ ...result, expiration: data.expiration })
+		const groceryId = await getOrCreateGroceryIdAsync(data)
+
+		const saveRequest = {
+			...data,
+			grocery: groceryId
+		}
+
+		await savePantryItemAsync(saveRequest)
 	})
 
 	return { savePantryItemForm: mutate, savePantryItemFormAsync: mutateAsync, ...rest }

@@ -9,6 +9,7 @@ export interface Recipe {
 	currentUserRating: number
 	user: User
 	items: RecipeItem[]
+	imageUrl?: string
 }
 
 export type GroceryCategory = string
