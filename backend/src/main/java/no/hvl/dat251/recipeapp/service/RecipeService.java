@@ -63,10 +63,6 @@ public class RecipeService {
         return recipeRepository.findById(id).map(Recipe::getImage).orElse(null);
     }
 
-    public byte[] getRecipeImage(Integer id) {
-        return recipeRepository.findById(id).map(Recipe::getImage).orElse(null);
-    }
-
     public List<Recipe> getAllRecipes() {
         User user = userService.getCurrentUser();
         return recipeRepository.findAll().stream().map(r -> computeRecipeFields(r, user)).collect(Collectors.toList());
