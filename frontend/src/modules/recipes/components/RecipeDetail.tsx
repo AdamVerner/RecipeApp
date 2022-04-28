@@ -1,28 +1,23 @@
-import { useNavigate, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 import {
-	IconButton,
 	Card,
 	List,
 	ListItemText,
 	Stack,
 	Typography,
 	ListItem,
-	ListSubheader,
 	Divider,
 	Rating,
 	styled
 } from "@mui/material"
 import RestaurantIcon from "@mui/icons-material/Restaurant"
-import KitchenIcon from "@mui/icons-material/Kitchen"
 import { useEffect, useMemo, useState } from "react"
 import { useGroceries, useRecipe, useSaveRecipeRating } from "../recipe-queries"
 import { RecipeCommentList } from "./RecipeCommentList"
 import { SaveRecipeCommentForm } from "./SaveRecipeCommentForm"
 import { useSnackbar } from "notistack"
 import { RecipeAverageRating } from "./RecipeAverageRating"
-import ArrowBackIcon from "@mui/icons-material/ArrowBack"
 import { TextStack } from "../../styles/containers"
-import { AppConfig } from "../../app-config"
 
 interface RecipeItemDetail {
 	id: number
@@ -34,7 +29,6 @@ interface RecipeItemDetail {
 
 export const RecipeDetail = () => {
 	const { id } = useParams()
-	const navigate = useNavigate()
 	const { enqueueSnackbar } = useSnackbar()
 
 	const { groceries } = useGroceries()

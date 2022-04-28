@@ -1,9 +1,8 @@
-import { Card, CardContent, Typography, Grid, CardActions, Button, Divider, Stack, CardMedia } from "@mui/material"
+import { Card, CardContent, Typography, Grid, Button, Divider, Stack, CardMedia } from "@mui/material"
 import { useNavigate } from "react-router-dom"
 import { AppRoutes } from "../../RootRouter"
 import { Recipe } from "../recipe-models"
 import { RecipeAverageRating } from "./RecipeAverageRating"
-import { AppConfig } from "../../app-config"
 import DefaultRecipeImage from "../../../assets/images/recipe-image-default.png"
 
 export interface RecipeListProps {
@@ -13,8 +12,6 @@ export interface RecipeListProps {
 export const RecipeList = ({ recipes }: RecipeListProps) => {
 	const navigate = useNavigate()
 
-
-	// todo: add image thumbnail
 	return (
 		<Grid container spacing={3} justifyContent="center" sx={{ maxWidth: 1000 }}>
 			{recipes.map((recipe, i) => (

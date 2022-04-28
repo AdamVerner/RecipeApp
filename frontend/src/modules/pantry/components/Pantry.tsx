@@ -7,7 +7,6 @@ import { useCallback, useMemo } from "react"
 import _ from "lodash"
 import { Add } from "@mui/icons-material"
 import { useModal } from "mui-modal-provider"
-import { RecipeCreateDialog } from "../../recipes/components/RecipeCreateDialog"
 
 export const Pantry = () => {
 	const pantryItems = usePantryItemsDisplay()

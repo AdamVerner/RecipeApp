@@ -1,6 +1,5 @@
 import { Paper, Grid } from "@mui/material"
 import { UserLoginForm } from "./UserLoginForm"
-import { UserRegisterForm } from "./UserRegisterForm"
 
 export const UserLogin = () => (
 	<Grid
