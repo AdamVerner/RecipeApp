@@ -26,7 +26,7 @@ public class Rating implements ObjectWithId {
     @ManyToOne(optional = false)
     @JoinColumn(nullable = false, foreignKey = @ForeignKey(name = "rating_recipe_id_fk"))
     @IdSerialization
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    //@JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private Recipe recipe;
 
     @NotNull
