@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form"
 import { Button, CircularProgress, Stack, TextField, Typography } from "@mui/material"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { AppRoutes } from "../../RootRouter"
 import { useSnackbar } from "notistack"
 import { yupResolver } from "@hookform/resolvers/yup"
@@ -10,7 +10,6 @@ import { UserLoginSchema, UserLoginFormData } from "../user-schemas"
 
 
 export const UserLoginForm = () => {
-
 	const {
 		register,
 		handleSubmit,
@@ -49,6 +48,7 @@ export const UserLoginForm = () => {
 					<Button type="submit" disabled={isSubmitting} variant="contained">
 						{isSubmitting ? <CircularProgress size={25}/> : <span>Login</span>}
 					</Button>
+					<Link to={AppRoutes.UserRegisterRoute}><Typography>You don&apos;t have an account?</Typography></Link>
 				</Stack>
 			</form>
 		</>

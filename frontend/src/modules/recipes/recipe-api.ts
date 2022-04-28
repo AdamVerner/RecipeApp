@@ -22,6 +22,7 @@ export interface SaveRecipeRequest {
 	portions: number
 	instructions: string
 	items: RecipeItem[]
+	image?: string
 }
 
 export interface SaveRecipeRatingRequest {
@@ -83,6 +84,7 @@ export const saveRecipeComment = (body: SaveRecipeCommentRequest) =>
 export const saveGrocery = (body: SaveGroceryRequest) =>
 	axios.post<Grocery>(SAVE_GROCERY_URL, body)
 		.then(res => res.data)
+
 
 export const saveRecipe = (body: SaveRecipeRequest) =>
 	axios.post<Recipe>(SAVE_RECIPE_URL, body)

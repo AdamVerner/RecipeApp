@@ -8,8 +8,8 @@ const DELETE_PANTRY_ITEM_URL = GET_PANTRY_ITEMS_URL
 
 export interface SavePantryRequest {
 	grocery: number
-	unit: string
-	quantity: number
+	unit?: string
+	quantity?: number
 	expiration?: Date
 }
 
