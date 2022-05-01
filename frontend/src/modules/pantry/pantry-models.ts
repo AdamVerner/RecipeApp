@@ -2,8 +2,8 @@
 export interface PantryItem {
 	id: number
 	grocery: number
-	unit: string
-	quantity: number
+	unit?: string
+	quantity?: number
 	expiration?: string
 }
 

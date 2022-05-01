@@ -10,7 +10,7 @@ import {
 	SaveRecipeRequest
 } from "./recipe-api"
 import { Grocery, Recipe } from "./recipe-models"
-import { GroceryFormData, RecipeFormData } from "./recipe-schemas"
+import { RecipeFormData } from "./recipe-schemas"
 
 const ALL_RECIPES_QUERY_KEY = "recipes"
 const USER_RECIPES_QUERY_KEY = "user/recipes"
@@ -101,50 +101,61 @@ export const useSaveRecipe = () => {
 	return { saveRecipe: mutate, saveRecipeAsync: mutateAsync, ...rest }
 }
 
-export const useGetOrSaveGrocery = () => {
+export const useGetOrCreateGroceryId = () => {
 	const { saveGroceryAsync } = useSaveGrocery()
 	const { groceries } = useGroceries()
 
-	const { mutate, mutateAsync, ...rest } = useMutation(GROCERIES_QUERY_KEY, async (item: GroceryFormData) => {
-
-		const unit = item.unit
-		const quantity = item.quantity
+	const { mutate, mutateAsync, ...rest } = useMutation(GROCERIES_QUERY_KEY, async (item: { grocery: string, category: string }) => {
 
 		const grocery = FindGrocery(groceries, item.grocery)
 
 		if (grocery) {
-
-			return {
-				grocery: grocery.id,
-				unit,
-				quantity
-			}
+			return grocery.id
 		} else {
 			const newGrocery = await saveGroceryAsync({ name: item.grocery, category: item.category })
-
-			return {
-				grocery: newGrocery.id,
-				unit,
-				quantity
-			}
+			return newGrocery.id
 		}
 	})
 
-	return { getOrSaveGrocery: mutate, getOrSaveGroceryAsync: mutateAsync, ...rest }
+	return { getOrCreateGroceryId: mutate, getOrCreateGroceryIdAsync: mutateAsync, ...rest }
 }
 
+const toBase64 = (file: File) => new Promise((resolve: (arg: string) => void, reject: (error: ProgressEvent<FileReader>) => void) => {
+	const reader = new FileReader()
+	reader.readAsDataURL(file)
+	reader.onload = () => {
+		const result = reader.result as string
+		resolve(result.split(",", 2)[1])
+	}
+	reader.onerror = error => reject(error)
+})
+
 export const useSaveRecipeForm = () => {
-	const { getOrSaveGroceryAsync } = useGetOrSaveGrocery()
+	const { getOrCreateGroceryIdAsync } = useGetOrCreateGroceryId()
 	const { saveRecipeAsync } = useSaveRecipe()
 
 	const { mutate, mutateAsync, ...rest } = useMutation(async (recipe: RecipeFormData) => {
-		const items = await Promise.all(recipe.items.map(async (item) => await getOrSaveGroceryAsync(item)))
+		const items = await Promise.all(recipe.items.map(async (item) =>
+		{
+			const groceryId = await getOrCreateGroceryIdAsync(item)
+
+			return {
+				grocery: groceryId,
+				unit: item.unit,
+				quantity: item.quantity
+			}
+		}))
+
+		const image = recipe.image ?
+			await toBase64(recipe.image) :
+			undefined
 
 		const saveRequest: SaveRecipeRequest = {
 			name: recipe.name,
 			portions: recipe.portions,
 			instructions: recipe.instructions,
-			items
+			items,
+			image
 		}
 
 		return await saveRecipeAsync(saveRequest)

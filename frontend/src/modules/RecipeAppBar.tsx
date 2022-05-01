@@ -88,7 +88,7 @@ export const RecipeAppBar = () => {
 					</IconButton>
 				}
 				<Stack sx={{ flexGrow: 1, paddingLeft: showMenu ? `${DrawerWidth}px` : 0 }}>
-					<Typography variant="h4">{title}</Typography>
+					<Typography variant="h5">{title}</Typography>
 				</Stack>
 				{isAuthenticated && <Button color="inherit" onClick={() => logout()}>Logout</Button>}
 			</Toolbar>

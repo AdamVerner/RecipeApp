@@ -12,6 +12,7 @@ import java.util.Date;
 public class TestService {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
+    public static final String TEST_USER = "test@email.com";
 
     @Value("${token.expiration.minutes}")
     private int tokenExpirationMinutes;
@@ -20,7 +21,7 @@ public class TestService {
     private SecurityService securityService;
 
     public String generateToken() {
-        return generateToken("test@email.com");
+        return generateToken(TEST_USER);
     }
 
     public String generateToken(String username) {

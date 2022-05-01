@@ -1,19 +1,19 @@
 import { useForm } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup/dist/yup"
-import { GroceryFormData, GrocerySchema } from "../recipe-schemas"
+import { RecipeIngredientFormData, GrocerySchema } from "../recipe-schemas"
 import { useGroceries, useGrocery, useGroceryCategories, useQuantityUnits } from "../recipe-queries"
 import { useEffect } from "react"
 import { ControlledAutocomplete } from "../../forms/ControlledAutocomplete"
 import { Button, Stack, styled, TextField } from "@mui/material"
 
 interface AddGroceryRecipeFormProps {
-	onSubmit: (data: GroceryFormData) => void
+	onSubmit: (data: RecipeIngredientFormData) => void
 	isSubmitting?: boolean
 }
 
 export const AddGroceryForm = ({ onSubmit: onSubmitCallback, isSubmitting }: AddGroceryRecipeFormProps) => {
 	const { control, register, handleSubmit, setValue, watch, reset, trigger, formState: { errors }  }
-		= useForm<GroceryFormData>({ resolver: yupResolver(GrocerySchema) })
+		= useForm<RecipeIngredientFormData>({ resolver: yupResolver(GrocerySchema) })
 
 	const { quantityUnits } = useQuantityUnits()
 	const { groceryCategories } = useGroceryCategories()
@@ -30,7 +30,7 @@ export const AddGroceryForm = ({ onSubmit: onSubmitCallback, isSubmitting }: Add
 		}
 	}, [trigger, selectedGrocery, setValue])
 
-	const onSubmit = (data: GroceryFormData) => {
+	const onSubmit = (data: RecipeIngredientFormData) => {
 		reset()
 		onSubmitCallback(data)
 	}

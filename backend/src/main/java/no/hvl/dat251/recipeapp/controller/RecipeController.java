@@ -10,6 +10,7 @@ import no.hvl.dat251.recipeapp.domain.Recipe;
 import no.hvl.dat251.recipeapp.service.RecipeService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -69,6 +70,14 @@ public class RecipeController {
     })
     public ResponseEntity<Recipe> getRecipe(@PathVariable Integer id) {
         return ResponseEntity.ok(recipeService.getRecipe(id));
+    }
+
+    @GetMapping(value = "/recipe-image/{id}.jpg", produces = MediaType.IMAGE_JPEG_VALUE)
+    @Operation(summary = "Get recipe image by ID", responses = {
+            @ApiResponse(responseCode = "200", description = "Successful operation")
+    })
+    public ResponseEntity<byte[]> getRecipeImage(@PathVariable Integer id) {
+        return ResponseEntity.ok(recipeService.getRecipeImage(id));
     }
 
     @PostMapping("/recipe")

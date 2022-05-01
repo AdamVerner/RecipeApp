@@ -35,7 +35,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         Map<HttpMethod, Set<String>> excludedEndpoints = new HashMap<>();
-        excludedEndpoints.put(HttpMethod.GET, new HashSet<>(Arrays.asList("/api-documentation/**", "/v3/api-docs/**", "/swagger-ui/**")));
+        excludedEndpoints.put(HttpMethod.GET, new HashSet<>(Arrays.asList("/api-documentation/**", "/v3/api-docs/**", "/swagger-ui/**", "/recipe-image/**")));
         excludedEndpoints.put(HttpMethod.POST, new HashSet<>(Arrays.asList("/login", "/user")));
 
         http.csrf().disable();

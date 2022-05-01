@@ -1,4 +1,4 @@
-import { useFieldArray, useForm } from "react-hook-form"
+import { useFieldArray, useForm, Controller } from "react-hook-form"
 import { yupResolver } from "@hookform/resolvers/yup"
 import {
 	Button,
@@ -21,7 +21,7 @@ import { Close, Delete } from "@mui/icons-material"
 import {
 	useSaveRecipeForm
 } from "../recipe-queries"
-import { GroceryFormData, RecipeFormData, RecipeSchema } from "../recipe-schemas"
+import { RecipeIngredientFormData, RecipeFormData, RecipeSchema } from "../recipe-schemas"
 import { AddGroceryForm } from "./AddGroceryForm"
 
 export interface RecipeCreateDialogProps extends DialogProps {
@@ -54,13 +54,13 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 			})
 	}
 
-	const handleAddItem = async (data: GroceryFormData) => {
+	const handleAddItem = async (data: RecipeIngredientFormData) => {
 		append(data)
 		await trigger("items")
 	}
 
 	return (
-		<Dialog {...props} fullWidth maxWidth="md"   onClose={handleClose}>
+		<Dialog {...props} fullWidth maxWidth="lg" onClose={handleClose}>
 			<DialogTitle>
 				<Stack direction="row">
 					<Typography sx={{ flexGrow: 1 }} component="div" variant="h6">Create recipe</Typography>
@@ -91,25 +91,57 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 									error={!!errors.instructions}
 									helperText={errors.instructions?.message}
 									multiline
-									rows={4}
+									rows={6}
 									{...register("instructions")}
 									label="Instructions"
+								/>
+								<Controller
+									control={control}
+									name="image"
+									render={({ field: { onChange, value: _value, ...props } }) => (
+										<>
+											<Typography>Image:
+												<input
+													type="file"
+													accept="image/png, image/jpeg"
+													onChange={(event) => {
+														const target = event.target as HTMLInputElement
+
+														if (target.files && target.files.length) {
+															const file = target.files[0]
+															onChange(file)
+														}
+														else {
+															onChange(undefined)
+														}
+													}}
+													{...props}
+												/>
+											</Typography>
+											{ errors.image &&
+												<Typography>{errors.image?.message}</Typography>
+											}
+										</>
+									)}
 								/>
 								<Button
 									type="submit"
 									disabled={isSubmitting}
 									variant="contained"
 								>
-								Create
+								Create recipe
 								</Button>
 							</Stack>
 						</FlexForm>
 					</Grid>
 					<Grid item md={4} sm={12} display="flex">
-						<AddGroceryForm
-							onSubmit={handleAddItem}
-							isSubmitting={isSubmitting}
-						/>
+						<Stack direction="row" sx={{ flexGrow: 1 }} spacing={3}>
+							<Divider orientation="vertical" flexItem />
+							<AddGroceryForm
+								onSubmit={handleAddItem}
+								isSubmitting={isSubmitting}
+							/>
+						</Stack>
 					</Grid>
 					<Grid item md={4} sm={12} display="flex">
 						<Stack direction="row" sx={{ flexGrow: 1 }}>
@@ -121,7 +153,7 @@ export const RecipeCreateDialog = ({ handleClose, ...props }: RecipeCreateDialog
 										{ !!errors.items &&
 											<Chip
 												color="error"
-												label="Recipe needs at least one recipe"
+												label="Recipe needs at least one ingredient"
 											/>
 										}
 										<Typography variant="h5">Ingredients</Typography>

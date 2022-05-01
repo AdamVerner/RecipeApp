@@ -57,20 +57,24 @@ export const SaveRecipeCommentForm = ({ recipeId }: SaveRecipeCommentFormProps) 
 		<>
 			<form onSubmit={handleSubmit(onSubmit)}>
 				<Stack>
-					<Stack spacing={3} direction="row">
+					<Stack spacing={3} >
 						<TextField
 							error={!!errors.text}
 							helperText={errors.text?.message}
 							{...textRegister}
 							inputRef={textRef}
+							multiline
+							rows={5}
 						/>
-						<Button type="submit" variant="contained" sx={{ maxHeight: 40 }}>
-						Send
-						</Button>
+						<Stack direction="row" justifyContent="space-between">
+							<IconButton onClick={toggleShowEmoji} sx={{ alignSelf: "flex-start" }}>
+								<InsertEmoticonIcon />
+							</IconButton>
+							<Button type="submit" variant="contained" sx={{ maxHeight: 40 }}>
+								Send
+							</Button>
+						</Stack>
 					</Stack>
-					<IconButton onClick={toggleShowEmoji} sx={{ alignSelf: "flex-start" }}>
-						<InsertEmoticonIcon />
-					</IconButton>
 					{ showEmoji &&
 						<EmojiPicker
 							native
